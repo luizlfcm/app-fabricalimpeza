@@ -16,8 +16,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Prefixo próprio (fdl_) para não colidir com registros de outros apps
-    // que já usam esse mesmo banco Redis compartilhado (ex: Fórmula Auto Pro)
+    // Mesmo prefixo usado pelo workflow n8n (fdl_cliente:) — evita colisão
+    // com registros de outros apps que usam esse mesmo banco compartilhado
     const key = `fdl_cliente:${email}`;
     const r = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
@@ -32,15 +32,14 @@ export default async function handler(req, res) {
     }
 
     const cliente = JSON.parse(data.result);
-    const produtos = cliente.produtos || {};
 
-    // Mapeia os nomes completos (Redis) para as chaves curtas que o app usa
+    // O n8n já grava no formato exato que o app espera (base/limp/leg/form/perf)
     const permissions = {
-      base: !!produtos.fabrica_limpeza,
-      limp: !!produtos.ouro_automotivo,
-      leg: !!produtos.guia_legalizacao,
-      form: !!produtos.formula_exclusiva,
-      perf: !!produtos.perfumes_casa_rico,
+      base: !!cliente.base,
+      limp: !!cliente.limp,
+      leg: !!cliente.leg,
+      form: !!cliente.form,
+      perf: !!cliente.perf,
     };
 
     return res.status(200).json({ success: true, permissions });
