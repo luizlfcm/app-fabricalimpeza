@@ -434,7 +434,7 @@ function rHome(){
     :'<span class="pc-badge lk2">🔒 BLOQUEADO</span>';
 
   const products=[
-    {icon:'🧴',name:'Fábrica da Limpeza',sub:'130 fórmulas de limpeza profissionais',v:'auto',key:'base',always:true},
+    {icon:'🧴',name:'Fábrica da Limpeza',sub:'130 fórmulas de limpeza profissionais',v:'auto',key:'base'},
     {icon:'🥇',name:'Ouro Automotivo',sub:'Dobre seu catálogo. 30 fórmulas automotivas de alto lucro — shampoo, cera, pretinho e mais.',v:'limpeza',key:'limp'},
     {icon:'⚖️',name:'Guia de Legalização',sub:'Venda sem medo. Tudo o que você precisa para estar na lei.',v:'legal',key:'leg'},
     {icon:'⚗️',name:'Fórmula Exclusiva',sub:'Um Engenheiro Químico desenvolvendo sua fórmula. Exclusiva. Só sua.',v:'exclusiva',key:'form'},
@@ -479,6 +479,7 @@ function rHome(){
 
 // ── AUTO PRO ───────────────────────────────────────────────────────
 function rAuto(){
+  if(!S.access.base&&!S.access.admin)return rLocked('🧴','Fábrica da Limpeza','https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10','R$39,00');
   const viewed=AF.filter(f=>isVd(f.id)).length;
   const cats=AC.map(ch=>{
     const n=AF.filter(f=>f.cat===ch.id).length;
@@ -876,7 +877,7 @@ function handleClick(e){
   switch(ac){
     case'go': go(el.dataset.v);break;
     case'upsell': {
-      const urls={base:'',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
+      const urls={base:'https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
       const v=el.dataset.v;const key=el.dataset.key;
       if(key&&!S.access[key]&&urls[key])window.open(urls[key],'_blank');
       break;
