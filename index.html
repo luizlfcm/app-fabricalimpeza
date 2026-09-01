@@ -59,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--glo),transparent 60%);opacity:0;transition:opacity .25s;}
 .pc:hover{border-color:var(--acc);transform:translateY(-1px);box-shadow:0 0 24px var(--glo);}
 .pc:hover::before{opacity:1;}
-.pc.lk{opacity:.55;}
+.pc.lk{opacity:.85;}
 .pc.lk:hover{transform:none;border-color:var(--brd);}
 .pc-icon{font-size:32px;flex-shrink:0;}
 .pc-body{flex:1;min-width:0;}
@@ -67,7 +67,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pc-sub{font-size:12px;color:var(--mut);line-height:1.4;}
 .pc-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;flex-shrink:0;}
 .pc-badge.inc{background:var(--acc);color:#fff;}
-.pc-badge.lk2{background:var(--brd);color:var(--dim);}
+.pc-badge.lk2{background:var(--glo);color:var(--acl);border:1px solid var(--acc);animation:pulse 2.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,114,12,.35);}50%{box-shadow:0 0 0 4px rgba(232,114,12,0);}}
+.pc-hint{color:var(--acl);font-size:10.5px;font-weight:700;margin-top:6px;}
 .pc-badge.unl{background:rgba(34,197,94,.2);color:var(--grn);border:1px solid rgba(34,197,94,.3);}
 /* UTILITY CARDS */
 .ug{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
@@ -431,7 +433,7 @@ function rHome(){
   const A=S.access;
   const badge=(unlocked,locked)=>unlocked
     ?'<span class="pc-badge unl">✓ INCLUSO</span>'
-    :'<span class="pc-badge lk2">🔒 BLOQUEADO</span>';
+    :'<span class="pc-badge lk2">🔓 DESBLOQUEAR</span>';
 
   const products=[
     {icon:'🧴',name:'Fábrica da Limpeza',sub:'130 fórmulas de limpeza profissionais',v:'auto',key:'base'},
@@ -448,6 +450,7 @@ function rHome(){
       <div class="pc-body">
         <div class="pc-name">${p.name}</div>
         <div class="pc-sub">${p.sub}</div>
+        ${unl?'':'<div class="pc-hint">👆 Toque para comprar e liberar na hora</div>'}
       </div>
       ${badge(unl)}
     </div>`;
@@ -898,7 +901,36 @@ function handleClick(e){
 // ── INSTALL PROMPT ─────────────────────────────────────────────────
 function openInst(){$('ip').classList.add('open');renderInstTabs();}
 function closeInst(){$('ip').classList.remove('open');}
+
+async function installNativo(){
+  if(!dP)return;
+  dP.prompt();
+  const escolha=await dP.userChoice;
+  if(escolha.outcome==='accepted'){
+    closeInst();
+  }
+  dP=null;
+}
+
 function renderInstTabs(){
+  const box=$('ip-box');
+  if(!box)return;
+
+  // Se o navegador oferece instalação nativa (Android/Chrome/Edge), mostra botão de 1 toque
+  if(dP){
+    box.innerHTML=`
+    <div class="ip-title">📲 Instalar no Celular</div>
+    <div class="ip-sub">Acesse offline, sem internet, igual a um app</div>
+    <div style="text-align:center;padding:24px 0 8px">
+      <div style="font-size:44px;margin-bottom:14px">⚡</div>
+      <p style="font-size:13px;color:var(--mut);margin-bottom:18px">Seu navegador já suporta instalação com 1 toque.</p>
+    </div>
+    <button class="ip-close" style="background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;border:none;font-weight:700;margin-bottom:10px" onclick="installNativo()">📲 Instalar Agora</button>
+    <button class="ip-close" onclick="closeInst()">Agora não</button>`;
+    return;
+  }
+
+  // Sem prompt nativo disponível — mostra passo a passo (obrigatório no iPhone/Safari)
   const ios=S.instTab==='ios';
   const steps=ios?[
     'Abra este link no <b>Safari</b> (obrigatório no iPhone)',
@@ -911,8 +943,6 @@ function renderInstTabs(){
     'Toque em <b>"Instalar aplicativo"</b>',
     'Confirme com <b>Instalar</b> — ícone aparece na tela!',
   ];
-  const box=$('ip-box');
-  if(!box)return;
   box.innerHTML=`
   <div class="ip-title">📲 Instalar no Celular</div>
   <div class="ip-sub">Acesse offline, sem internet, igual a um app</div>
@@ -928,7 +958,15 @@ function renderInstTabs(){
 }
 
 let dP=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;});
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  dP=e;
+  // Se o modal já estiver aberto esperando, re-renderiza mostrando o botão nativo
+  if($('ip')&&$('ip').classList.contains('open'))renderInstTabs();
+});
+window.addEventListener('appinstalled',()=>{dP=null;});
+
+
 
 // ── INIT ──────────────────────────────────────────────────────────
 
