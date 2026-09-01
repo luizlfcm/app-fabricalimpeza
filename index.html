@@ -283,7 +283,7 @@ function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
 function _fapShowLogin(msg){
   if(document.getElementById('fap-login'))return;
   var el=document.createElement('div');el.id='fap-login';
-  el.innerHTML='<div style="min-height:100vh;background:#080B0F;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,sans-serif">'
+  el.innerHTML='<div style="position:fixed;inset:0;overflow-y:auto;background:#080B0F;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,sans-serif;z-index:10000">'
     +'<div style="background:#111418;border:1px solid #21262D;border-radius:20px;padding:32px 24px;max-width:360px;width:100%;text-align:center">'
     +'<div style="font-size:48px;margin-bottom:12px">🧴</div>'
     +'<h1 style="font-size:22px;font-weight:800;color:#F0F6FC;margin-bottom:8px">Fábrica da Limpeza</h1>'
@@ -894,12 +894,19 @@ function handleClick(e){
     case'leg-cap': go('legal-cap',{legCap:el.dataset.id});break;
     case'back-cat': go(el.dataset.view,{autoCat:el.dataset.cat,limpCat:el.dataset.cat,perfCat:el.dataset.cat});break;
     case'fav': togFav(el.dataset.id,e);break;
-    case'ip-tab': S.instTab=el.dataset.tab;renderInstTabs();break;
+    case'ip-tab': S.instTab=el.dataset.tab;S._instTabManual=true;renderInstTabs();break;
   }
 }
 
 // ── INSTALL PROMPT ─────────────────────────────────────────────────
-function openInst(){$('ip').classList.add('open');renderInstTabs();}
+function openInst(){
+  // Detecta o sistema automaticamente pra já abrir na aba certa
+  if(!S._instTabManual){
+    const ua=navigator.userAgent||'';
+    S.instTab=/Android/i.test(ua)?'and':'ios';
+  }
+  $('ip').classList.add('open');renderInstTabs();
+}
 function closeInst(){$('ip').classList.remove('open');}
 
 async function installNativo(){
@@ -910,6 +917,21 @@ async function installNativo(){
     closeInst();
   }
   dP=null;
+}
+
+function detectaNavegadorApp(){
+  const ua=navigator.userAgent||'';
+  const isInstagram=/Instagram/i.test(ua);
+  const isFacebook=/FBAN|FBAV|FB_IAB/i.test(ua);
+  const isWhatsApp=/WhatsApp/i.test(ua);
+  const isLine=/Line\//i.test(ua);
+  const isTikTok=/TikTok|BytedanceWebview/i.test(ua);
+  if(isInstagram)return'Instagram';
+  if(isFacebook)return'Facebook';
+  if(isWhatsApp)return'WhatsApp';
+  if(isTikTok)return'TikTok';
+  if(isLine)return'Line';
+  return null;
 }
 
 function renderInstTabs(){
@@ -932,8 +954,15 @@ function renderInstTabs(){
 
   // Sem prompt nativo disponível — mostra passo a passo (obrigatório no iPhone/Safari)
   const ios=S.instTab==='ios';
+  const appDetectado=detectaNavegadorApp();
+  const avisoAppInterno=(ios&&appDetectado)?`
+    <div style="background:rgba(232,114,12,.12);border:1px solid var(--acc);border-radius:10px;padding:12px 14px;margin-bottom:16px;text-align:left">
+      <div style="font-size:12px;font-weight:800;color:var(--acl);margin-bottom:6px">⚠️ Você está no navegador do ${appDetectado}</div>
+      <div style="font-size:12px;color:var(--txt);line-height:1.5">O ${appDetectado} não permite instalar apps. Toque nos <b>●●●</b> ou <b>⋯</b> (menu, geralmente no canto superior direito) e escolha <b>"Abrir no Safari"</b> ou <b>"Abrir no navegador"</b> antes de continuar.</div>
+    </div>
+  `:'';
   const steps=ios?[
-    'Abra este link no <b>Safari</b> (obrigatório no iPhone)',
+    'Confirme que está usando o <b>Safari</b> (obrigatório no iPhone — não funciona no navegador do WhatsApp/Instagram)',
     'Toque no ícone <b>⬆</b> na barra inferior',
     'Toque em <b>"Adicionar à Tela de Início"</b>',
     'Confirme com <b>Adicionar</b> — ícone aparece na tela!',
@@ -950,6 +979,7 @@ function renderInstTabs(){
     <div class="ip-tab${ios?' on':''}" data-action="ip-tab" data-tab="ios">🍎 iPhone</div>
     <div class="ip-tab${!ios?' on':''}" data-action="ip-tab" data-tab="and">🤖 Android</div>
   </div>
+  ${avisoAppInterno}
   <div class="ip-steps">${steps.map((s,i)=>`<div class="ip-step"><div class="ip-n">${i+1}</div><div class="ip-t">${s}</div></div>`).join('')}</div>
   <button class="ip-close" onclick="closeInst()">Entendi ✓</button>`;
   document.querySelectorAll('[data-action="ip-tab"]').forEach(el=>{
