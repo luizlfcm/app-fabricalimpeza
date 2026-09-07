@@ -1034,6 +1034,11 @@ function init(){
   $('hdr-f-btn')?.addEventListener('click',()=>go('favs'));
   $('hdr-inst-btn')?.addEventListener('click',openInst);
 }
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
 document.addEventListener('DOMContentLoaded',init);
 
 </script>
