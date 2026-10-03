@@ -1152,8 +1152,14 @@ function init(){
     if(sp){sp.style.opacity='0';sp.style.transition='opacity .5s';}
     setTimeout(function(){
       if(sp)sp.style.display='none';
-      // Sem acesso — mostra tela de login OU retoma o Modo Prévia salvo
+      // Sem acesso — mostra tela de login OU retoma/inicia o Modo Prévia
       if(!S.access.base&&!S.access.admin){
+        var pParams=new URLSearchParams(location.search);
+        if(!S.preview&&pParams.get('preview')==='1'){
+          // Chegou direto de um link "conheça a plataforma" (ex: da PV) — pula a tela de escolha
+          _fapStartPreview();
+          return;
+        }
         if(S.preview){
           if(ap)ap.removeAttribute('hidden');
           render();
