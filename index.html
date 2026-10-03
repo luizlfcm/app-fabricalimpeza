@@ -10,6 +10,11 @@
 <title>Fábrica da Limpeza</title>
 <meta name="description" content="130+ fórmulas de limpeza profissionais — o guia completo para produzir e vender.">
 <link rel="manifest" href="manifest.json">
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1532030027716189');
+// Apenas ViewContent e InitiateCheckout são disparados neste app — nunca Purchase.
+</script>
 <style>
 :root{--bg:#080B0F;--bg2:#0E1117;--card:#111418;--ch:#181D24;--brd:#1E2530;--acc:#E8720C;--acl:#FFB347;--acd:#C4580A;--glo:rgba(232,114,12,0.15);--txt:#F2F4F6;--mut:#8B95A1;--dim:#4A5568;--grn:#22C55E;--blu:#3B82F6;--r:12px;--rl:18px;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -113,6 +118,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .fi:hover{border-color:var(--acc);background:var(--ch);}
 .fi.sv{border-left:3px solid var(--acc);}
 .fi.vd{border-left:3px solid var(--grn);}
+.fi.lk{opacity:.68;}
+.fi.fr{border-left:3px solid var(--grn);}
+/* PREVIEW MODE */
+.prevbar{margin:12px 16px 0;padding:12px 14px;background:linear-gradient(135deg,var(--acc),var(--acd));border-radius:var(--r);display:flex;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(232,114,12,.3);}
+.prevbar-tx{flex:1;font-size:12px;font-weight:700;line-height:1.4;color:#fff;}
+.prevbar-cta{background:#fff;color:var(--acd);padding:8px 14px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap;flex-shrink:0;}
 .fic{flex:1;min-width:0;}
 .fit{font-size:14px;font-weight:600;margin-bottom:4px;}
 .fid{font-size:12px;color:var(--mut);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
@@ -286,11 +297,14 @@ function _fapShowLogin(msg){
   el.innerHTML='<div style="position:fixed;inset:0;overflow-y:auto;background:#080B0F;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,sans-serif;z-index:10000">'
     +'<div style="background:#111418;border:1px solid #21262D;border-radius:20px;padding:32px 24px;max-width:360px;width:100%;text-align:center">'
     +'<div style="font-size:48px;margin-bottom:12px">🧴</div>'
-    +'<h1 style="font-size:22px;font-weight:800;color:#F0F6FC;margin-bottom:8px">Fábrica da Limpeza</h1>'
-    +'<p style="font-size:14px;color:#8B949E;margin-bottom:24px;line-height:1.6">Digite o email que você usou na compra</p>'
+    +'<h1 style="font-size:22px;font-weight:800;color:#F0F6FC;margin-bottom:4px">Fábrica da Limpeza</h1>'
+    +'<p style="font-size:11px;font-weight:800;color:#E8720C;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Sou aluno(a) — digite o email da compra</p>'
     +'<input id="fap-ei" type="email" placeholder="seu@email.com" autocomplete="email" style="width:100%;padding:14px;border-radius:10px;border:1px solid #21262D;background:#0D1117;color:#F0F6FC;font-size:15px;margin-bottom:12px;outline:none"/>'
     +'<button id="fap-eb" onclick="_fapDoLogin()" style="width:100%;padding:16px;border-radius:12px;background:linear-gradient(135deg,#E8720C,#C45E08);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer">Acessar →</button>'
     +'<p id="fap-ee" style="font-size:12px;color:#F85149;margin-top:10px;min-height:18px">'+(msg||'')+'</p>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin:22px 0 16px"><div style="flex:1;height:1px;background:#21262D"></div><span style="font-size:11px;color:#484F58">ou</span><div style="flex:1;height:1px;background:#21262D"></div></div>'
+    +'<p style="font-size:11px;color:#8B949E;margin-bottom:10px;line-height:1.5">Ainda não comprou?</p>'
+    +'<button id="fap-pb" onclick="_fapStartPreview()" style="width:100%;padding:14px;border-radius:12px;background:transparent;color:#FFB347;font-size:13px;font-weight:700;border:1.5px solid #E8720C;cursor:pointer">👀 Quero conhecer a plataforma</button>'
     +'<p style="font-size:11px;color:#484F58;margin-top:20px">Problemas? <a href="https://wa.me/558131963052" style="color:#E8720C;text-decoration:none">Fale com o suporte</a></p>'
     +'</div></div>';
   document.body.appendChild(el);
@@ -299,12 +313,35 @@ function _fapShowLogin(msg){
 
 function _fapApplyPerms(perms){
   localStorage.setItem('fap_perms',JSON.stringify(perms));
+  localStorage.removeItem('fap_preview');
+  S.preview=false;
   S.access={base:perms.base||false,limp:perms.limp||false,leg:perms.leg||false,form:perms.form||false,perf:perms.perf||false,full:false,admin:false};
   var el=document.getElementById('fap-login');if(el)el.remove();
   var ap=document.getElementById('app');if(ap)ap.removeAttribute('hidden');
   render();
   var standalone=window.matchMedia('(display-mode:standalone)').matches||navigator.standalone;
   if(!standalone&&!localStorage.getItem('fap_inst_shown')){setTimeout(openInst,1500);localStorage.setItem('fap_inst_shown','1');}
+}
+
+// ── Modo Prévia (visitantes que ainda não compraram) ───────────────
+function _fapPixel(event,params){
+  try{ if(typeof fbq==='function') fbq('track',event,params||{}); }catch(e){}
+}
+
+function _fapStartPreview(){
+  localStorage.setItem('fap_preview','1');
+  S.preview=true;
+  S.access={base:false,limp:false,leg:false,form:false,perf:false,full:false,admin:false};
+  var el=document.getElementById('fap-login');if(el)el.remove();
+  var ap=document.getElementById('app');if(ap)ap.removeAttribute('hidden');
+  go('auto');
+  _fapPixel('ViewContent',{content_name:'Fábrica da Limpeza - Modo Prévia',content_category:'preview_mode'});
+}
+
+function _fapExitPreviewToLogin(){
+  localStorage.removeItem('fap_preview');
+  S.preview=false;
+  _fapShowLogin();
 }
 
 function _fapDoLogin(){
@@ -372,7 +409,15 @@ let S={
   viewed:ls('fap_viewed','[]'),
   access:parseAccess(),
   instTab:'ios',
+  preview:localStorage.getItem('fap_preview')==='1',
 };
+
+// 2-3 fórmulas completas liberadas no Modo Prévia para quem ainda não comprou
+// (escolhidas em categorias diferentes, só receitas de entrada — as premium ficam bloqueadas)
+const PREVIEW_IDS=['fl001','fl021','fl051'];
+const CHECKOUT_URLS={base:'https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
+const CHECKOUT_BASE=CHECKOUT_URLS.base;
+const PDF_NAMES={base:'Fabrica-da-Limpeza-130-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
 
 const $=id=>document.getElementById(id);
 const M=()=>$('main');
@@ -404,27 +449,41 @@ function updProg(){
 }
 
 // ── RENDER ─────────────────────────────────────────────────────────
+function _fapHasBase(){return S.access.base||S.access.admin;}
+
+function rPreviewBar(){
+  if(!S.preview||_fapHasBase())return'';
+  return`<div class="prevbar">
+    <span style="font-size:18px">👀</span>
+    <span class="prevbar-tx">Modo Prévia — ${PREVIEW_IDS.length} de ${AF.length} fórmulas liberadas de graça</span>
+    <a href="${CHECKOUT_BASE}" target="_blank" class="prevbar-cta" data-action="track-checkout" data-produto="base">Desbloquear tudo →</a>
+  </div>`;
+}
+
 function render(){
   const el=M();
+  let html='';
   switch(S.view){
-    case'home':      el.innerHTML=rHome();break;
-    case'auto':      el.innerHTML=rAuto();break;
-    case'auto-cat':  el.innerHTML=rAutoCat();break;
-    case'auto-form': el.innerHTML=rForm(AF,S.autoForm,'auto-cat',S.autoCat,'auto');break;
-    case'limpeza':   el.innerHTML=rLimpeza();break;
-    case'limp-cat':  el.innerHTML=rLimpCat();break;
-    case'limp-form': el.innerHTML=rForm(LF,S.limpForm,'limp-cat',S.limpCat,'limpeza');break;
-    case'perfumes':  el.innerHTML=rPerf();break;
-    case'perf-cat':  el.innerHTML=rPerfCat();break;
-    case'perf-form': el.innerHTML=rForm(PF,S.perfForm,'perf-cat',S.perfCat,'perfumes');break;
-    case'legal':     el.innerHTML=rLegal();break;
-    case'legal-cap': el.innerHTML=rLegalCap();break;
-    case'exclusiva': el.innerHTML=rExclusiva();break;
-    case'search':    el.innerHTML=rSearchShell();bindSearch();break;
-    case'favs':      el.innerHTML=rFavs();break;
-    case'gloss':     el.innerHTML=rGloss();break;
-    case'supp':      el.innerHTML=rSupp();break;
+    case'home':      html=rHome();break;
+    case'auto':      html=rAuto();break;
+    case'auto-cat':  html=rAutoCat();break;
+    case'auto-form': html=rForm(AF,S.autoForm,'auto-cat',S.autoCat,'auto');break;
+    case'limpeza':   html=rLimpeza();break;
+    case'limp-cat':  html=rLimpCat();break;
+    case'limp-form': html=rForm(LF,S.limpForm,'limp-cat',S.limpCat,'limpeza');break;
+    case'perfumes':  html=rPerf();break;
+    case'perf-cat':  html=rPerfCat();break;
+    case'perf-form': html=rForm(PF,S.perfForm,'perf-cat',S.perfCat,'perfumes');break;
+    case'legal':     html=rLegal();break;
+    case'legal-cap': html=rLegalCap();break;
+    case'exclusiva': html=rExclusiva();break;
+    case'search':    html=rSearchShell();break;
+    case'favs':      html=rFavs();break;
+    case'gloss':     html=rGloss();break;
+    case'supp':      html=rSupp();break;
   }
+  el.innerHTML=rPreviewBar()+html;
+  if(S.view==='search')bindSearch();
   bindCommon();updProg();
 }
 
@@ -445,14 +504,21 @@ function rHome(){
 
   const pcards=products.map(p=>{
     const unl=p.always||A[p.key]||A.admin;
-    return`<div class="pc${unl?'':' lk'}" data-action="${unl?'go':'upsell'}" data-v="${p.v}" data-key="${p.key}">
+    const previewable=(p.key==='base'&&S.preview&&!unl);
+    const action=unl?'go':(previewable?'go':'upsell');
+    const badgeHtml=unl?'<span class="pc-badge unl">✓ INCLUSO</span>'
+      :(previewable?'<span class="pc-badge lk2">👀 PRÉVIA GRÁTIS</span>':'<span class="pc-badge lk2">🔓 DESBLOQUEAR</span>');
+    const hint=unl?'':(previewable
+      ?'<div class="pc-hint" style="color:var(--grn)">👆 Toque para ver fórmulas grátis</div>'
+      :'<div class="pc-hint">👆 Toque para comprar e liberar na hora</div>');
+    return`<div class="pc${unl?'':' lk'}" data-action="${action}" data-v="${p.v}" data-key="${p.key}">
       <div class="pc-icon">${p.icon}</div>
       <div class="pc-body">
         <div class="pc-name">${p.name}</div>
         <div class="pc-sub">${p.sub}</div>
-        ${unl?'':'<div class="pc-hint">👆 Toque para comprar e liberar na hora</div>'}
+        ${hint}
       </div>
-      ${badge(unl)}
+      ${badgeHtml}
     </div>`;
   }).join('');
 
@@ -476,43 +542,55 @@ function rHome(){
   <div class="bg">${bons}</div>
   <div style="padding:14px 16px;text-align:center">
     <button onclick="openInst()" style="background:rgba(232,114,12,.12);border:1px solid rgba(232,114,12,.25);color:var(--acc);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%">📲 Instalar no Celular</button>
+    ${S.preview?'<button onclick="_fapExitPreviewToLogin()" style="background:none;border:none;color:var(--mut);padding:12px 4px 0;font-size:12px;text-decoration:underline;cursor:pointer;width:100%">Já comprou? Entrar com seu email</button>':''}
     <div style="margin-top:10px;font-size:11px;color:var(--dim)">João Silva · Engenheiro Químico · (81) 3196-3052</div>
   </div>`;
 }
 
 // ── AUTO PRO ───────────────────────────────────────────────────────
 function rAuto(){
-  if(!S.access.base&&!S.access.admin)return rLocked('🧴','Fábrica da Limpeza','https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10','R$39,00');
+  const hasAccess=_fapHasBase();
+  if(!hasAccess&&!S.preview)return rLocked('🧴','Fábrica da Limpeza',CHECKOUT_BASE,'R$39,00','base');
   const viewed=AF.filter(f=>isVd(f.id)).length;
   const cats=AC.map(ch=>{
     const n=AF.filter(f=>f.cat===ch.id).length;
+    const nFree=AF.filter(f=>f.cat===ch.id&&PREVIEW_IDS.includes(f.id)).length;
+    const ckTxt=hasAccess?`${n} fórmulas`:(nFree>0?`🔓 ${nFree} grátis · ${n} fórmulas`:`🔒 ${n} fórmulas`);
     return`<div class="cc" data-action="auto-cat" data-cat="${ch.id}">
       <span class="ci">${ch.icon}</span>
       <div class="cn">${ch.name}</div>
-      <div class="ck">${n} fórmulas</div>
+      <div class="ck">${ckTxt}</div>
     </div>`;
   }).join('');
+  const dlWrap=hasAccess
+    ?`<div class="dl-wrap"><button class="dl-btn" data-action="download-pdf" data-produto="base">📥 Baixar Guia Completo (PDF)</button></div>`
+    :`<div class="dl-wrap"><button class="dl-btn" style="opacity:.55;cursor:pointer" data-action="track-checkout" data-produto="base" onclick="window.open('${CHECKOUT_BASE}','_blank')">🔒 PDF completo disponível após a compra</button></div>`;
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="home">‹</div>
     <div class="sat"><div class="sat-icon">🧴</div><div class="sat-name">Fábrica da Limpeza</div><div class="sat-sub">${AF.length} fórmulas · ${viewed} visualizadas</div></div>
   </div>
-  <div class="dl-wrap"><a href="fabrica-limpeza.pdf" download class="dl-btn">📥 Baixar Guia Completo (PDF)</a></div>
+  ${dlWrap}
   <div style="padding:0 16px 8px"><div class="sl" style="margin:8px 0 10px">Categorias</div></div>
   <div class="cg" style="padding:0 16px 16px">${cats}</div>`;
 }
 
 function rAutoCat(){
+  const hasAccess=_fapHasBase();
   const ch=AC.find(c=>c.id===S.autoCat)||AC[0];
   const fs=AF.filter(f=>f.cat===S.autoCat);
-  const items=fs.map(f=>`
-  <div class="fi${isFav(f.id)?' sv':''}${isVd(f.id)?' vd':''}" data-action="auto-form" data-id="${f.id}">
+  const items=fs.map(f=>{
+    const isFree=PREVIEW_IDS.includes(f.id);
+    const locked=!hasAccess&&!isFree;
+    const tag=locked?' <span style="color:var(--acc);font-size:11px">🔒</span>':(!hasAccess&&isFree?' <span style="color:var(--grn);font-size:10px;font-weight:800;letter-spacing:.5px">· GRÁTIS</span>':'');
+    return`
+  <div class="fi${isFav(f.id)?' sv':''}${isVd(f.id)?' vd':''}${locked?' lk':''}" data-action="auto-form" data-id="${f.id}">
     <div class="fic">
-      <div class="fit">${f.title}</div>
+      <div class="fit">${f.title}${tag}</div>
       <div class="fid">${f.desc}</div>
     </div>
     <div class="far">›</div>
-  </div>`).join('');
+  </div>`;}).join('');
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="auto">‹</div>
@@ -524,7 +602,7 @@ function rAutoCat(){
 
 // ── LIMPEZA ───────────────────────────────────────────────────────
 function rLimpeza(){
-  if(!S.access.limp&&!S.access.admin)return rLocked('🥇','Ouro Automotivo','https://pay.hotmart.com/Y101050809L?off=xa1zi5p1','R$9,90');
+  if(!S.access.limp&&!S.access.admin)return rLocked('🥇','Ouro Automotivo',CHECKOUT_URLS.limp,'R$9,90','limp');
   const viewed=LF.filter(f=>isVd(f.id)).length;
   const cats=LC.map(ch=>{
     const n=LF.filter(f=>f.cat===ch.id).length;
@@ -539,7 +617,7 @@ function rLimpeza(){
     <div class="bb" data-action="go" data-v="home">‹</div>
     <div class="sat"><div class="sat-icon">🥇</div><div class="sat-name">Ouro Automotivo</div><div class="sat-sub">${LF.length} fórmulas · ${viewed} visualizadas</div></div>
   </div>
-  <div class="dl-wrap"><a href="ouro-automotivo.pdf" download class="dl-btn">📥 Baixar Guia Completo (PDF)</a></div>
+  <div class="dl-wrap"><button class="dl-btn" data-action="download-pdf" data-produto="limp">📥 Baixar Guia Completo (PDF)</button></div>
   <div style="padding:0 16px 8px"><div class="sl" style="margin:8px 0 10px">Categorias</div></div>
   <div class="cg" style="padding:0 16px 16px">${cats}</div>`;
 }
@@ -566,7 +644,7 @@ function rLimpCat(){
 
 // ── PERFUMES DE CASA DE RICO ─────────────────────────────────────────
 function rPerf(){
-  if(!S.access.perf&&!S.access.admin)return rLocked('🌸','Perfumes de Casa de Rico','https://pay.hotmart.com/B101050470F?off=45r70602','R$9,90');
+  if(!S.access.perf&&!S.access.admin)return rLocked('🌸','Perfumes de Casa de Rico',CHECKOUT_URLS.perf,'R$9,90','perf');
   const viewed=PF.filter(f=>isVd(f.id)).length;
   const cats=PC.map(ch=>{
     const n=PF.filter(f=>f.cat===ch.id).length;
@@ -581,7 +659,7 @@ function rPerf(){
     <div class="bb" data-action="go" data-v="home">‹</div>
     <div class="sat"><div class="sat-icon">🌸</div><div class="sat-name">Perfumes de Casa de Rico</div><div class="sat-sub">${PF.length} fórmulas · ${viewed} visualizadas</div></div>
   </div>
-  <div class="dl-wrap"><a href="perfumes-casa-rico.pdf" download class="dl-btn">📥 Baixar Guia Completo (PDF)</a></div>
+  <div class="dl-wrap"><button class="dl-btn" data-action="download-pdf" data-produto="perf">📥 Baixar Guia Completo (PDF)</button></div>
   <div style="padding:0 16px 8px"><div class="sl" style="margin:8px 0 10px">Famílias Olfativas</div></div>
   <div class="cg" style="padding:0 16px 16px">${cats}</div>`;
 }
@@ -607,11 +685,41 @@ function rPerfCat(){
 }
 
 // ── SHARED FORMULA DETAIL ──────────────────────────────────────────
+function rFormTeaser(f,backView,backCat){
+  return`
+  <div class="fh">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div class="bb" data-action="back-cat" data-view="${backView}" data-cat="${backCat}">‹</div>
+      <div style="flex:1"></div>
+      <div style="font-size:10px;color:var(--dim)">${f.catIcon||''} ${f.catName||''}</div>
+    </div>
+    <div class="ftm">${f.title}</div>
+    <div class="fdm">${f.desc}</div>
+  </div>
+  <div class="sb"><div class="bt">Onde Usar</div><div class="ul2">${(f.uses||[]).map(u=>`<span class="ut2">${u}</span>`).join('')}</div></div>
+  <div class="sb"><div class="bt">Função dos Ingredientes</div><div class="ifl">${(f.ingFunc||[]).slice(0,2).map(([n,d])=>`<div class="ifi"><div class="ifn">${n}</div><div class="ifd">${d}</div></div>`).join('')}</div></div>
+  <div style="margin:16px;padding:24px 18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.08));border:1px solid var(--acc);border-radius:var(--rl);text-align:center">
+    <div style="font-size:30px;margin-bottom:8px">🔒</div>
+    <div style="font-size:15px;font-weight:800;margin-bottom:6px">Fórmula completa, modo de preparo, diluição e argumento de venda disponíveis após a compra</div>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:16px;line-height:1.5">Desbloqueie as 130 fórmulas completas da Fábrica da Limpeza, com quantidades exatas, passo a passo e custo por litro.</div>
+    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:14px 26px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">🔓 Desbloquear por R$39,00</a>
+  </div>`;
+}
+
 function rForm(db,id,backView,backCat,parentView){
   const f=db.find(x=>x.id===id);
   if(!f)return rHome();
+  const previewLocked=parentView==='auto'&&!_fapHasBase()&&!PREVIEW_IDS.includes(f.id);
+  if(previewLocked)return rFormTeaser(f,backView,backCat);
   markVd(f.id);
   const fv=isFav(f.id);
+  const previewFree=parentView==='auto'&&!_fapHasBase()&&PREVIEW_IDS.includes(f.id);
+  const freeBanner=previewFree?`
+  <div style="margin:16px;padding:18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.08));border:1px solid var(--acc);border-radius:var(--rl);text-align:center">
+    <div style="font-size:11px;font-weight:800;color:var(--acl);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">👀 Fórmula de demonstração gratuita</div>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:14px">Essa é 1 das 130 fórmulas completas. Desbloqueie o acesso total agora.</div>
+    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:700;text-decoration:none">🔓 Desbloquear 130 fórmulas — R$39,00</a>
+  </div>`:'';
   const tbl=`<table class="ft"><thead><tr><th>Ingrediente</th><th>Quantidade</th></tr></thead><tbody>${(f.formula||[]).map(([i,q])=>`<tr><td>${i}</td><td>${q}</td></tr>`).join('')}</tbody></table>`;
   const ift=`<div class="ifl">${(f.ingFunc||[]).map(([n,d])=>`<div class="ifi"><div class="ifn">${n}</div><div class="ifd">${d}</div></div>`).join('')}</div>`;
   const prep=`<div class="pl">${(f.prep||[]).map((s,i)=>`<div class="ps"><div class="pn">${i+1}</div><div class="ptx">${s}</div></div>`).join('')}</div>`;
@@ -646,12 +754,13 @@ function rForm(db,id,backView,backCat,parentView){
       ${f.emb?`<div class="ip" style="grid-column:span 2"><div class="ipl">Embalagem</div><div class="ipv">${f.emb}</div></div>`:''}
     </div>
   </div>
-  ${f.venda?`<div class="sb"><div class="bt">Argumento de Venda e Custo</div><div class="sales"><div class="sq">"${f.venda}"</div><div class="cn2">${f.custo||''}</div></div></div>`:''}`;
+  ${f.venda?`<div class="sb"><div class="bt">Argumento de Venda e Custo</div><div class="sales"><div class="sq">"${f.venda}"</div><div class="cn2">${f.custo||''}</div></div></div>`:''}
+  ${freeBanner}`;
 }
 
 // ── LEGALIZAÇÃO ────────────────────────────────────────────────────
 function rLegal(){
-  if(!S.access.leg&&!S.access.admin)return rLocked('⚖️','Guia de Legalização','https://pay.hotmart.com/N101171884C?off=9ypy0wt8','R$9,90');
+  if(!S.access.leg&&!S.access.admin)return rLocked('⚖️','Guia de Legalização',CHECKOUT_URLS.leg,'R$9,90','leg');
   const items=LG.map(cap=>`
   <div class="lg-card" data-action="leg-cap" data-id="${cap.id}">
     <div class="lg-num">${cap.num}</div>
@@ -666,7 +775,7 @@ function rLegal(){
     <div class="bb" data-action="go" data-v="home">‹</div>
     <div class="sat"><div class="sat-icon">⚖️</div><div class="sat-name">Guia de Legalização</div><div class="sat-sub">9 capítulos — venda do jeito certo</div></div>
   </div>
-  <div class="dl-wrap"><a href="guia-legalizacao.pdf" download class="dl-btn">📥 Baixar Guia Completo (PDF)</a></div>
+  <div class="dl-wrap"><button class="dl-btn" data-action="download-pdf" data-produto="leg">📥 Baixar Guia Completo (PDF)</button></div>
   <div class="fl">${items}</div>`;
 }
 
@@ -692,14 +801,14 @@ function rLegalCap(){
     </div>
     ${lines}
     <div style="margin-top:20px">
-      <a href="guia-legalizacao.pdf" download class="dl-btn">📥 Baixar Guia Completo em PDF</a>
+      <button class="dl-btn" data-action="download-pdf" data-produto="leg">📥 Baixar Guia Completo em PDF</button>
     </div>
   </div>`;
 }
 
 // ── EXCLUSIVA ──────────────────────────────────────────────────────
 function rExclusiva(){
-  if(!S.access.form&&!S.access.admin)return rLocked('⚗️','Fórmula Exclusiva','https://pay.hotmart.com/B95152079U?off=5436fck8','R$19,90');
+  if(!S.access.form&&!S.access.admin)return rLocked('⚗️','Fórmula Exclusiva',CHECKOUT_URLS.form,'R$19,90','form');
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="home">‹</div>
@@ -726,7 +835,7 @@ function rExclusiva(){
 }
 
 // ── LOCKED STATE ──────────────────────────────────────────────────
-function rLocked(icon,name,url,price){
+function rLocked(icon,name,url,price,prodKey){
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="home">‹</div>
@@ -736,7 +845,7 @@ function rLocked(icon,name,url,price){
     <div class="ei">🔒</div>
     <div class="et">Conteúdo Bloqueado</div>
     <div class="ex2">Adquira ${name} para desbloquear todo o conteúdo.</div>
-    <a href="${url}" target="_blank" style="display:inline-block;margin-top:20px;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:13px 28px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">
+    <a href="${url}" target="_blank" data-action="track-checkout" data-produto="${prodKey||''}" style="display:inline-block;margin-top:20px;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:13px 28px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">
       🔓 Desbloquear por ${price}
     </a>
   </div>`;
@@ -880,9 +989,42 @@ function handleClick(e){
   switch(ac){
     case'go': go(el.dataset.v);break;
     case'upsell': {
-      const urls={base:'https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
-      const v=el.dataset.v;const key=el.dataset.key;
-      if(key&&!S.access[key]&&urls[key])window.open(urls[key],'_blank');
+      const key=el.dataset.key;
+      if(key&&!S.access[key]&&CHECKOUT_URLS[key]){
+        _fapPixel('InitiateCheckout',{content_name:key});
+        window.open(CHECKOUT_URLS[key],'_blank');
+      }
+      break;
+    }
+    case'track-checkout': {
+      _fapPixel('InitiateCheckout',{content_name:el.dataset.produto||''});
+      break; // navegação padrão do <a href target=_blank> acontece normalmente
+    }
+    case'download-pdf': {
+      const produto=el.dataset.produto;
+      const hasAcc=S.access[produto]||S.access.admin;
+      if(!hasAcc){
+        alert('Esse PDF fica disponível depois da compra. Desbloqueie o acesso completo para baixar.');
+        return;
+      }
+      const prevTxt=el.textContent;
+      el.textContent='Baixando...';el.disabled=true;
+      const email=localStorage.getItem('fap_email')||'';
+      const tk=S.access.admin?'ADMIN_FDL_2026':'';
+      fetch('/api/download?produto='+encodeURIComponent(produto)+'&email='+encodeURIComponent(email)+(tk?'&token='+tk:''),{cache:'no-store'})
+        .then(function(r){ if(!r.ok)throw new Error('fail'); return r.blob(); })
+        .then(function(blob){
+          const url=URL.createObjectURL(blob);
+          const a=document.createElement('a');
+          a.href=url;a.download=PDF_NAMES[produto]||'documento.pdf';
+          document.body.appendChild(a);a.click();a.remove();
+          setTimeout(function(){URL.revokeObjectURL(url);},2000);
+          el.textContent=prevTxt;el.disabled=false;
+        })
+        .catch(function(){
+          alert('Não foi possível baixar agora. Tente novamente ou fale com o suporte.');
+          el.textContent=prevTxt;el.disabled=false;
+        });
       break;
     }
     case'auto-cat': go('auto-cat',{autoCat:el.dataset.cat});break;
@@ -1010,8 +1152,15 @@ function init(){
     if(sp){sp.style.opacity='0';sp.style.transition='opacity .5s';}
     setTimeout(function(){
       if(sp)sp.style.display='none';
-      // Sem acesso — mostra tela de login (síncrono, sem async)
+      // Sem acesso — mostra tela de login OU retoma o Modo Prévia salvo
       if(!S.access.base&&!S.access.admin){
+        if(S.preview){
+          if(ap)ap.removeAttribute('hidden');
+          render();
+          _fapPixel('ViewContent',{content_name:'Fábrica da Limpeza - Modo Prévia',content_category:'preview_mode'});
+          setTimeout(_fapBgRefresh,1000);
+          return;
+        }
         _fapShowLogin();
         return;
       }
