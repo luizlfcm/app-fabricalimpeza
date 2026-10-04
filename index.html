@@ -412,9 +412,9 @@ let S={
   preview:localStorage.getItem('fap_preview')==='1',
 };
 
-// 2-3 fórmulas completas liberadas no Modo Prévia para quem ainda não comprou
-// (escolhidas em categorias diferentes, só receitas de entrada — as premium ficam bloqueadas)
-const PREVIEW_IDS=['fl001','fl021','fl051'];
+// 1 fórmula completa liberada por categoria no Modo Prévia para quem ainda não comprou
+// (sempre a receita de entrada de cada categoria, pra dar uma amostra de tudo sem entregar o avançado)
+const PREVIEW_IDS=['fl001','fl021','fl036','fl051','fl066','fl081','fl101'];
 const CHECKOUT_URLS={base:'https://pay.hotmart.com/R95029861K?off=wdi3mjc1&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
 const CHECKOUT_BASE=CHECKOUT_URLS.base;
 const PDF_NAMES={base:'Fabrica-da-Limpeza-130-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
