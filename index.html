@@ -415,7 +415,7 @@ let S={
 // 2-3 fórmulas completas liberadas no Modo Prévia para quem ainda não comprou
 // (escolhidas em categorias diferentes, só receitas de entrada — as premium ficam bloqueadas)
 const PREVIEW_IDS=['fl001','fl021','fl051'];
-const CHECKOUT_URLS={base:'https://pay.hotmart.com/R95029861K?off=w2s93b5b&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
+const CHECKOUT_URLS={base:'https://pay.hotmart.com/R95029861K?off=wdi3mjc1&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
 const CHECKOUT_BASE=CHECKOUT_URLS.base;
 const PDF_NAMES={base:'Fabrica-da-Limpeza-130-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
 
@@ -550,7 +550,7 @@ function rHome(){
 // ── AUTO PRO ───────────────────────────────────────────────────────
 function rAuto(){
   const hasAccess=_fapHasBase();
-  if(!hasAccess&&!S.preview)return rLocked('🧴','Fábrica da Limpeza',CHECKOUT_BASE,'R$39,00','base');
+  if(!hasAccess&&!S.preview)return rLocked('🧴','Fábrica da Limpeza',CHECKOUT_BASE,'R$43,90','base');
   const viewed=AF.filter(f=>isVd(f.id)).length;
   const cats=AC.map(ch=>{
     const n=AF.filter(f=>f.cat===ch.id).length;
@@ -702,7 +702,7 @@ function rFormTeaser(f,backView,backCat){
     <div style="font-size:30px;margin-bottom:8px">🔒</div>
     <div style="font-size:15px;font-weight:800;margin-bottom:6px">Fórmula completa, modo de preparo, diluição e argumento de venda disponíveis após a compra</div>
     <div style="font-size:12px;color:var(--mut);margin-bottom:16px;line-height:1.5">Desbloqueie as 130 fórmulas completas da Fábrica da Limpeza, com quantidades exatas, passo a passo e custo por litro.</div>
-    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:14px 26px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">🔓 Desbloquear por R$39,00</a>
+    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:14px 26px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">🔓 Desbloquear por R$43,90</a>
   </div>`;
 }
 
@@ -718,7 +718,7 @@ function rForm(db,id,backView,backCat,parentView){
   <div style="margin:16px;padding:18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.08));border:1px solid var(--acc);border-radius:var(--rl);text-align:center">
     <div style="font-size:11px;font-weight:800;color:var(--acl);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">👀 Fórmula de demonstração gratuita</div>
     <div style="font-size:12px;color:var(--mut);margin-bottom:14px">Essa é 1 das 130 fórmulas completas. Desbloqueie o acesso total agora.</div>
-    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:700;text-decoration:none">🔓 Desbloquear 130 fórmulas — R$39,00</a>
+    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:700;text-decoration:none">🔓 Desbloquear 130 fórmulas — R$43,90</a>
   </div>`:'';
   const tbl=`<table class="ft"><thead><tr><th>Ingrediente</th><th>Quantidade</th></tr></thead><tbody>${(f.formula||[]).map(([i,q])=>`<tr><td>${i}</td><td>${q}</td></tr>`).join('')}</tbody></table>`;
   const ift=`<div class="ifl">${(f.ingFunc||[]).map(([n,d])=>`<div class="ifi"><div class="ifn">${n}</div><div class="ifd">${d}</div></div>`).join('')}</div>`;
