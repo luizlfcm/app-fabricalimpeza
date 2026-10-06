@@ -314,6 +314,7 @@ function _fapShowLogin(msg){
 function _fapApplyPerms(perms){
   localStorage.setItem('fap_perms',JSON.stringify(perms));
   localStorage.removeItem('fap_preview');
+  localStorage.removeItem('fap_buy_intent');
   S.preview=false;
   S.access={base:perms.base||false,limp:perms.limp||false,leg:perms.leg||false,form:perms.form||false,perf:perms.perf||false,full:false,admin:false};
   var el=document.getElementById('fap-login');if(el)el.remove();
@@ -337,6 +338,8 @@ function _fapStartPreview(){
   go('auto');
   _fapPixel('ViewContent',{content_name:'Fábrica da Limpeza - Modo Prévia',content_category:'preview_mode'});
 }
+
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.preview&&localStorage.getItem('fap_buy_intent'))render();});
 
 function _fapExitPreviewToLogin(){
   localStorage.removeItem('fap_preview');
@@ -457,7 +460,9 @@ function rPreviewBar(){
     <span style="font-size:18px">👀</span>
     <span class="prevbar-tx">Modo Prévia — ${PREVIEW_IDS.length} de ${AF.length} fórmulas liberadas de graça</span>
     <a href="${CHECKOUT_BASE}" target="_blank" class="prevbar-cta" data-action="track-checkout" data-produto="base">Desbloquear tudo →</a>
-  </div>`;
+  </div>
+    <div style="margin:8px 16px 0;text-align:center"><button onclick="_fapExitPreviewToLogin()" style="background:none;border:none;color:var(--acc);font-size:14px;font-weight:700;text-decoration:underline;cursor:pointer;padding:6px">Já comprou? Entre com seu e-mail</button></div>
+    ${localStorage.getItem('fap_buy_intent')?`<div onclick="_fapExitPreviewToLogin()" style="margin:8px 16px 0;padding:14px;background:#16a34a;color:#fff;border-radius:var(--r);font-size:15px;font-weight:700;text-align:center;cursor:pointer;line-height:1.35">✅ Comprou? Toque aqui e entre com o e-mail que usou na compra</div>`:''}`;
 }
 
 function render(){
@@ -998,6 +1003,8 @@ function handleClick(e){
     }
     case'track-checkout': {
       _fapPixel('InitiateCheckout',{content_name:el.dataset.produto||''});
+      try{localStorage.setItem('fap_buy_intent','1');}catch(e){}
+      setTimeout(function(){if(S.preview)render();},400);
       break; // navegação padrão do <a href target=_blank> acontece normalmente
     }
     case'download-pdf': {
