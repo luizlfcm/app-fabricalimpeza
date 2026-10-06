@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0B0F0A">
+<link rel="manifest" href="/admin.webmanifest">
+<link rel="icon" href="/admin-icon-192.png">
+<link rel="apple-touch-icon" href="/admin-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Adm Limpeza">
 <title>Admin — Fábrica da Limpeza</title>
 <style>
 *{box-sizing:border-box}
@@ -100,6 +107,7 @@ async function chamar(acao){
 }
 document.getElementById('btnC').onclick = function(){ chamar('consultar'); };
 document.getElementById('btnS').onclick = function(){ chamar('salvar'); };
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/admin-sw.js',{scope:'/admin.html'}).catch(function(){});}
 </script>
 </body>
 </html>
