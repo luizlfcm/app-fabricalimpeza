@@ -418,7 +418,7 @@ let S={
 // 1 fórmula completa liberada por categoria no Modo Prévia para quem ainda não comprou
 // (sempre a receita de entrada de cada categoria, pra dar uma amostra de tudo sem entregar o avançado)
 const PREVIEW_IDS=['fl001','fl021','fl036','fl051','fl066','fl081','fl101'];
-const CHECKOUT_URLS={base:'https://pay.hotmart.com/R95029861K?off=wdi3mjc1&checkoutMode=10',limp:'https://pay.hotmart.com/Y101050809L?off=xa1zi5p1',leg:'https://pay.hotmart.com/N101171884C?off=9ypy0wt8',form:'https://pay.hotmart.com/B95152079U?off=5436fck8',perf:'https://pay.hotmart.com/B101050470F?off=45r70602'};
+const CHECKOUT_URLS={base:'https://pagamento.luverisgroup.com.br/fdl?utm_source=app&utm_medium=preview&utm_content=base',limp:'https://pagamento.luverisgroup.com.br/fdl/limp?utm_source=app&utm_medium=upsell&utm_content=limp',leg:'https://pagamento.luverisgroup.com.br/fdl/leg?utm_source=app&utm_medium=upsell&utm_content=leg',form:'https://pagamento.luverisgroup.com.br/fdl/form?utm_source=app&utm_medium=upsell&utm_content=form',perf:'https://pagamento.luverisgroup.com.br/fdl/perf?utm_source=app&utm_medium=upsell&utm_content=perf'};
 const CHECKOUT_BASE=CHECKOUT_URLS.base;
 const PDF_NAMES={base:'Fabrica-da-Limpeza-130-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
 
@@ -607,7 +607,7 @@ function rAutoCat(){
 
 // ── LIMPEZA ───────────────────────────────────────────────────────
 function rLimpeza(){
-  if(!S.access.limp&&!S.access.admin)return rLocked('🥇','Ouro Automotivo',CHECKOUT_URLS.limp,'R$9,90','limp');
+  if(!S.access.limp&&!S.access.admin)return rLocked('🥇','Ouro Automotivo',CHECKOUT_URLS.limp,'R$14,90','limp');
   const viewed=LF.filter(f=>isVd(f.id)).length;
   const cats=LC.map(ch=>{
     const n=LF.filter(f=>f.cat===ch.id).length;
@@ -649,7 +649,7 @@ function rLimpCat(){
 
 // ── PERFUMES DE CASA DE RICO ─────────────────────────────────────────
 function rPerf(){
-  if(!S.access.perf&&!S.access.admin)return rLocked('🌸','Perfumes de Casa de Rico',CHECKOUT_URLS.perf,'R$9,90','perf');
+  if(!S.access.perf&&!S.access.admin)return rLocked('🌸','Perfumes de Casa de Rico',CHECKOUT_URLS.perf,'R$6,90','perf');
   const viewed=PF.filter(f=>isVd(f.id)).length;
   const cats=PC.map(ch=>{
     const n=PF.filter(f=>f.cat===ch.id).length;
@@ -765,7 +765,7 @@ function rForm(db,id,backView,backCat,parentView){
 
 // ── LEGALIZAÇÃO ────────────────────────────────────────────────────
 function rLegal(){
-  if(!S.access.leg&&!S.access.admin)return rLocked('⚖️','Guia de Legalização',CHECKOUT_URLS.leg,'R$9,90','leg');
+  if(!S.access.leg&&!S.access.admin)return rLocked('⚖️','Guia de Legalização',CHECKOUT_URLS.leg,'R$13,90','leg');
   const items=LG.map(cap=>`
   <div class="lg-card" data-action="leg-cap" data-id="${cap.id}">
     <div class="lg-num">${cap.num}</div>
@@ -813,7 +813,7 @@ function rLegalCap(){
 
 // ── EXCLUSIVA ──────────────────────────────────────────────────────
 function rExclusiva(){
-  if(!S.access.form&&!S.access.admin)return rLocked('⚗️','Fórmula Exclusiva',CHECKOUT_URLS.form,'R$19,90','form');
+  if(!S.access.form&&!S.access.admin)return rLocked('⚗️','Fórmula Exclusiva',CHECKOUT_URLS.form,'R$24,90','form');
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="home">‹</div>
