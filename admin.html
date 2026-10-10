@@ -27,6 +27,8 @@ input[type=text],input[type=email],input[type=password]{width:100%;padding:12px;
 button{flex:1;padding:14px;border-radius:10px;border:0;font-size:15px;font-weight:700;cursor:pointer}
 .b1{background:#2a2f38;color:#e8edf2}
 .b2{background:#3fb950;color:#04130a}
+.b3{background:#f85149;color:#fff;margin-top:10px;flex:none;width:100%}
+.dica{font-size:12px;color:#8b95a1;margin-top:6px}
 pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word}
 .msg{margin-top:16px;padding:12px;border-radius:10px;font-size:14px}
 .ok{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.4)}
@@ -54,6 +56,9 @@ pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;
     <button class="b1" id="btnC">Consultar</button>
     <button class="b2" id="btnS">Liberar / salvar</button>
   </div>
+
+  <button class="b3" id="btnR">Revogar acesso (dos produtos marcados)</button>
+  <div class="dica">Para cancelar: consulte o e-mail, marque só o que quer remover e toque em Revogar. Os outros produtos do cliente não mudam.</div>
 
   <div id="out"></div>
 </div>
@@ -85,7 +90,15 @@ async function chamar(acao){
   if(!keyEl.value){ show('err','Digite a senha admin.'); return; }
   try { sessionStorage.setItem('adm_key', keyEl.value); } catch(e){}
   var produtos = {};
-  document.querySelectorAll('[data-p]').forEach(function(i){ produtos[i.getAttribute('data-p')] = i.checked; });
+  if(acao==='revogar'){
+    // só os marcados vão para "false"; os demais ficam como estão no banco
+    document.querySelectorAll('[data-p]').forEach(function(i){ if(i.checked) produtos[i.getAttribute('data-p')] = false; });
+    var lista = Object.keys(produtos);
+    if(!lista.length){ show('err','Marque o(s) produto(s) que deseja revogar.'); return; }
+    if(!confirm('Revogar o acesso de '+email+' a: '+lista.join(', ')+'?')) return;
+  } else {
+    document.querySelectorAll('[data-p]').forEach(function(i){ produtos[i.getAttribute('data-p')] = i.checked; });
+  }
   show('ok','Aguarde...');
   try{
     var r = await fetch('/api/admin-liberar', {
@@ -99,6 +112,9 @@ async function chamar(acao){
       if(!d.existe){ marcar(null); show('err','Esse e-mail ainda não está cadastrado. Marque os produtos e clique em Liberar.'); return; }
       marcar(d.cliente);
       show('ok','Cadastro encontrado:<pre>'+esc(JSON.stringify(d.cliente,null,2))+'</pre>');
+    } else if(acao==='revogar'){
+      marcar(d.cliente);
+      show('ok','🚫 Acesso revogado. Situação atual:<pre>'+esc(JSON.stringify(d.cliente,null,2))+'</pre>');
     } else {
       marcar(d.cliente);
       show('ok','✅ Gravado no banco:<pre>'+esc(JSON.stringify(d.cliente,null,2))+'</pre>');
@@ -107,6 +123,7 @@ async function chamar(acao){
 }
 document.getElementById('btnC').onclick = function(){ chamar('consultar'); };
 document.getElementById('btnS').onclick = function(){ chamar('salvar'); };
+document.getElementById('btnR').onclick = function(){ chamar('revogar'); };
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/admin-sw.js',{scope:'/admin.html'}).catch(function(){});}
 </script>
 </body>

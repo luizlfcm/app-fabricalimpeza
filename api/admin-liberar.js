@@ -81,6 +81,12 @@ export default async function handler(req, res) {
     if (!cliente.criadoEm) cliente.criadoEm = agora();
 
     const pedidos = body.produtos || {};
+    // Revogar só aceita "false": nunca libera nada por engano.
+    if (body.acao === 'revogar') {
+      if (!Object.keys(pedidos).some((k) => pedidos[k] === false)) return res.status(400).json({ ok: false, error: 'Nenhum produto para revogar.' });
+      if (!atual) return res.status(404).json({ ok: false, error: 'Esse e-mail não está cadastrado.' });
+      Object.keys(pedidos).forEach((k) => { if (pedidos[k] !== false) delete pedidos[k]; });
+    }
     PRODUTOS.forEach((p) => {
       if (typeof pedidos[p] === 'boolean') cliente[p] = pedidos[p];
       else if (typeof cliente[p] !== 'boolean') cliente[p] = false;
