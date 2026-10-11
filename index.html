@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fábrica da Limpeza">
 <title>Fábrica da Limpeza</title>
-<meta name="description" content="130+ fórmulas de limpeza profissionais — o guia completo para produzir e vender.">
+<meta name="description" content="200+ fórmulas de limpeza profissionais — o guia completo para produzir e vender.">
 <link rel="manifest" href="manifest.json">
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -420,7 +420,7 @@ let S={
 const PREVIEW_IDS=['fl001','fl021','fl036','fl051','fl066','fl081','fl101'];
 const CHECKOUT_URLS={base:'https://pagamento.luverisgroup.com.br/fdl?utm_source=app&utm_medium=preview&utm_content=base',limp:'https://pagamento.luverisgroup.com.br/fdl/limp?utm_source=app&utm_medium=upsell&utm_content=limp',leg:'https://pagamento.luverisgroup.com.br/fdl/leg?utm_source=app&utm_medium=upsell&utm_content=leg',form:'https://pagamento.luverisgroup.com.br/fdl/form?utm_source=app&utm_medium=upsell&utm_content=form',perf:'https://pagamento.luverisgroup.com.br/fdl/perf?utm_source=app&utm_medium=upsell&utm_content=perf'};
 const CHECKOUT_BASE=CHECKOUT_URLS.base;
-const PDF_NAMES={base:'Fabrica-da-Limpeza-130-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
+const PDF_NAMES={base:'Fabrica-da-Limpeza-200-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
 
 const $=id=>document.getElementById(id);
 const M=()=>$('main');
@@ -500,7 +500,7 @@ function rHome(){
     :'<span class="pc-badge lk2">🔓 DESBLOQUEAR</span>';
 
   const products=[
-    {icon:'🧴',name:'Fábrica da Limpeza',sub:'130 fórmulas de limpeza profissionais',v:'auto',key:'base'},
+    {icon:'🧴',name:'Fábrica da Limpeza',sub:'200 fórmulas de limpeza profissionais',v:'auto',key:'base'},
     {icon:'🥇',name:'Ouro Automotivo',sub:'Dobre seu catálogo. 30 fórmulas automotivas de alto lucro — shampoo, cera, pretinho e mais.',v:'limpeza',key:'limp'},
     {icon:'⚖️',name:'Guia de Legalização',sub:'Venda sem medo. Tudo o que você precisa para estar na lei.',v:'legal',key:'leg'},
     {icon:'⚗️',name:'Fórmula Exclusiva',sub:'Um Engenheiro Químico desenvolvendo sua fórmula. Exclusiva. Só sua.',v:'exclusiva',key:'form'},
@@ -706,7 +706,7 @@ function rFormTeaser(f,backView,backCat){
   <div style="margin:16px;padding:24px 18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.08));border:1px solid var(--acc);border-radius:var(--rl);text-align:center">
     <div style="font-size:30px;margin-bottom:8px">🔒</div>
     <div style="font-size:15px;font-weight:800;margin-bottom:6px">Fórmula completa, modo de preparo, diluição e argumento de venda disponíveis após a compra</div>
-    <div style="font-size:12px;color:var(--mut);margin-bottom:16px;line-height:1.5">Desbloqueie as 130 fórmulas completas da Fábrica da Limpeza, com quantidades exatas, passo a passo e custo por litro.</div>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:16px;line-height:1.5">Desbloqueie as 200 fórmulas completas da Fábrica da Limpeza, com quantidades exatas, passo a passo e custo por litro.</div>
     <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:14px 26px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none">🔓 Desbloquear por R$43,90</a>
   </div>`;
 }
@@ -722,8 +722,8 @@ function rForm(db,id,backView,backCat,parentView){
   const freeBanner=previewFree?`
   <div style="margin:16px;padding:18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.08));border:1px solid var(--acc);border-radius:var(--rl);text-align:center">
     <div style="font-size:11px;font-weight:800;color:var(--acl);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">👀 Fórmula de demonstração gratuita</div>
-    <div style="font-size:12px;color:var(--mut);margin-bottom:14px">Essa é 1 das 130 fórmulas completas. Desbloqueie o acesso total agora.</div>
-    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:700;text-decoration:none">🔓 Desbloquear 130 fórmulas — R$43,90</a>
+    <div style="font-size:12px;color:var(--mut);margin-bottom:14px">Essa é 1 das 200 fórmulas completas. Desbloqueie o acesso total agora.</div>
+    <a href="${CHECKOUT_BASE}" target="_blank" data-action="track-checkout" data-produto="base" style="display:inline-block;background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;padding:12px 24px;border-radius:var(--r);font-size:13px;font-weight:700;text-decoration:none">🔓 Desbloquear 200 fórmulas — R$43,90</a>
   </div>`:'';
   const tbl=`<table class="ft"><thead><tr><th>Ingrediente</th><th>Quantidade</th></tr></thead><tbody>${(f.formula||[]).map(([i,q])=>`<tr><td>${i}</td><td>${q}</td></tr>`).join('')}</tbody></table>`;
   const ift=`<div class="ifl">${(f.ingFunc||[]).map(([n,d])=>`<div class="ifi"><div class="ifn">${n}</div><div class="ifd">${d}</div></div>`).join('')}</div>`;

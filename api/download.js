@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 
 const FILES = {
-  base: { file: 'fabrica-limpeza.pdf', name: 'Fabrica-da-Limpeza-130-Formulas.pdf' },
+  base: { file: 'fabrica-limpeza.pdf', name: 'Fabrica-da-Limpeza-200-Formulas.pdf' },
   limp: { file: 'ouro-automotivo.pdf', name: 'Ouro-Automotivo-30-Formulas.pdf' },
   leg: { file: 'guia-legalizacao.pdf', name: 'Guia-de-Legalizacao.pdf' },
   perf: { file: 'perfumes-casa-rico.pdf', name: 'Perfumes-Casa-de-Rico-30-Receitas.pdf' },
