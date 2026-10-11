@@ -4,9 +4,11 @@
 // Uso pela página /admin.html — não é chamado pelo app dos clientes.
 import { randomBytes, timingSafeEqual } from 'crypto';
 
-const PREFIXO = 'fdl_cliente:';          // prefixo da chave no Upstash
-const TOKEN_PREFIXO = 'FDL_';
-const PRODUTOS = ["base", "limp", "leg", "form", "perf"];
+// Duas versões no mesmo painel: Completa (padrão) e Essencial (body.versao === 'essencial').
+const CFG = {
+  completa: { prefixo: 'fdl_cliente:', token: 'FDL_', produtos: ["base", "limp", "leg", "form", "perf"] },
+  essencial: { prefixo: 'fdless:', token: 'FES_', produtos: ["base", "limp", "leg", "perf", "upg"] },
+};
 const UPSTASH_DEFAULT_URL = '';
 
 function agora() {
@@ -21,12 +23,12 @@ function chaveOk(recebida) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-function gerarToken() {
+function gerarToken(prefixo) {
   const alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const bytes = randomBytes(12);
   let t = '';
   for (let i = 0; i < 12; i++) t += alfabeto[bytes[i] % alfabeto.length];
-  return TOKEN_PREFIXO + t;
+  return prefixo + t;
 }
 
 export default async function handler(req, res) {
@@ -54,7 +56,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'E-mail inválido.' });
   }
 
-  const key = encodeURIComponent(PREFIXO + email);
+  const ess = body.versao === 'essencial';
+  const cfg = ess ? CFG.essencial : CFG.completa;
+  const key = encodeURIComponent(cfg.prefixo + email);
   const auth = { Authorization: `Bearer ${TOKEN_}` };
 
   try {
@@ -70,14 +74,14 @@ export default async function handler(req, res) {
 
     // Liberar / revogar: só altera os produtos enviados, preserva o resto
     const cliente = atual || {
-      token: gerarToken(),
+      token: gerarToken(cfg.token),
       nome: 'Cliente',
       email,
       criadoEm: agora(),
     };
     cliente.email = email;
     if (body.nome) cliente.nome = String(body.nome).slice(0, 80);
-    if (!cliente.token) cliente.token = gerarToken();
+    if (!cliente.token) cliente.token = gerarToken(cfg.token);
     if (!cliente.criadoEm) cliente.criadoEm = agora();
 
     const pedidos = body.produtos || {};
@@ -87,7 +91,7 @@ export default async function handler(req, res) {
       if (!atual) return res.status(404).json({ ok: false, error: 'Esse e-mail não está cadastrado.' });
       Object.keys(pedidos).forEach((k) => { if (pedidos[k] !== false) delete pedidos[k]; });
     }
-    PRODUTOS.forEach((p) => {
+    cfg.produtos.forEach((p) => {
       if (typeof pedidos[p] === 'boolean') cliente[p] = pedidos[p];
       else if (typeof cliente[p] !== 'boolean') cliente[p] = false;
     });
@@ -100,6 +104,18 @@ export default async function handler(req, res) {
     });
     const sd = await s.json();
     if (sd.error) throw new Error(sd.error);
+
+    // Upgrade do Essencial: libera também a base do app completo (igual ao checkout).
+    if (ess && body.acao !== 'revogar' && pedidos.upg === true) {
+      const kb = encodeURIComponent(CFG.completa.prefixo + email);
+      const gb = await (await fetch(`${URL_}/get/${kb}`, { headers: auth, cache: 'no-store' })).json();
+      let cb = null;
+      if (gb.result) { try { cb = JSON.parse(gb.result); } catch (e) { cb = null; } }
+      cb = cb || { token: gerarToken(CFG.completa.token), nome: cliente.nome, email, criadoEm: agora() };
+      cb.base = true; cb.atualizadoEm = agora();
+      const sb = await (await fetch(`${URL_}/set/${kb}`, { method: 'POST', headers: { ...auth, 'Content-Type': 'text/plain' }, body: JSON.stringify(cb) })).json();
+      if (sb.error) throw new Error(sb.error);
+    }
 
     // Confere que gravou mesmo
     const v = await fetch(`${URL_}/get/${key}`, { headers: auth, cache: 'no-store' });

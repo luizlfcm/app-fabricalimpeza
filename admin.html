@@ -49,6 +49,12 @@ pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;
   <label for="nome">Nome (opcional)</label>
   <input type="text" id="nome" placeholder="Cliente">
 
+  <label>Versão do produto</label>
+  <div class="row" style="margin-bottom:10px">
+    <button class="b2" id="vC" type="button">Completa</button>
+    <button class="b1" id="vE" type="button">Essencial</button>
+  </div>
+
   <label>Produtos</label>
   <div class="prods" id="prods"></div>
 
@@ -64,15 +70,25 @@ pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;
 </div>
 
 <script>
-var PRODUTOS = [{"k": "base", "n": "Fábrica da Limpeza (base)"}, {"k": "limp", "n": "Ouro Automotivo (limp)"}, {"k": "leg", "n": "Guia de Legalização (leg)"}, {"k": "form", "n": "Fórmula Personalizada (form)"}, {"k": "perf", "n": "Perfumes de Casa de Rico (perf)"}];
+var LISTAS = {completa: [{"k": "base", "n": "Fábrica da Limpeza (base)"}, {"k": "limp", "n": "Ouro Automotivo (limp)"}, {"k": "leg", "n": "Guia de Legalização (leg)"}, {"k": "form", "n": "Fórmula Personalizada (form)"}, {"k": "perf", "n": "Perfumes de Casa de Rico (perf)"}], essencial: [{"k": "base", "n": "Essencial — 20 receitas (base)"}, {"k": "limp", "n": "Ouro Automotivo (limp)"}, {"k": "perf", "n": "Perfumes de Casa de Rico (perf)"}, {"k": "leg", "n": "Guia de Legalização (leg)"}, {"k": "upg", "n": "Upgrade para a Premium (upg) — libera também o app completo"}]};
+var versao = 'completa';
 var prods = document.getElementById('prods');
-PRODUTOS.forEach(function(p){
+function montar(){
+  prods.innerHTML = '';
+  LISTAS[versao].forEach(function(p){
   var d = document.createElement('label');
   d.className = 'prod';
   d.style.cssText = 'text-transform:none;letter-spacing:0;color:#e8edf2;font-size:14px;margin:0';
   d.innerHTML = '<input type="checkbox" data-p="'+p.k+'"> '+p.n;
   prods.appendChild(d);
-});
+  });
+  document.getElementById('vC').className = versao==='completa' ? 'b2' : 'b1';
+  document.getElementById('vE').className = versao==='essencial' ? 'b2' : 'b1';
+}
+function trocar(v){ versao = v; montar(); document.getElementById('out').innerHTML=''; }
+montar();
+document.getElementById('vC').onclick = function(){ trocar('completa'); };
+document.getElementById('vE').onclick = function(){ trocar('essencial'); };
 
 var keyEl = document.getElementById('key');
 try { keyEl.value = sessionStorage.getItem('adm_key') || ''; } catch(e){}
@@ -104,7 +120,7 @@ async function chamar(acao){
     var r = await fetch('/api/admin-liberar', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-admin-key':keyEl.value},
-      body: JSON.stringify({acao:acao, email:email, nome:document.getElementById('nome').value.trim(), produtos:produtos})
+      body: JSON.stringify({acao:acao, versao:versao, email:email, nome:document.getElementById('nome').value.trim(), produtos:produtos})
     });
     var d = await r.json();
     if(!d.ok){ show('err', esc(d.error||'Erro')); return; }
