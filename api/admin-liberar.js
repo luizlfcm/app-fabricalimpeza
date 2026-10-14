@@ -7,7 +7,7 @@ import { randomBytes, timingSafeEqual } from 'crypto';
 // Duas versões no mesmo painel: Completa (padrão) e Essencial (body.versao === 'essencial').
 const CFG = {
   completa: { prefixo: 'fdl_cliente:', token: 'FDL_', produtos: ["base", "limp", "leg", "form", "perf"] },
-  essencial: { prefixo: 'fdless:', token: 'FES_', produtos: ["base", "limp", "leg", "perf", "upg"] },
+  essencial: { prefixo: 'fdless:', token: 'FES_', produtos: ["base", "limp", "leg", "perf", "form", "upg"] },
 };
 const UPSTASH_DEFAULT_URL = '';
 
