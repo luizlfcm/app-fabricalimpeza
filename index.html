@@ -312,6 +312,7 @@ function _fapShowLogin(msg){
 }
 
 function _fapApplyPerms(perms){
+  try{localStorage.removeItem('fap_ess');}catch(e){}
   localStorage.setItem('fap_perms',JSON.stringify(perms));
   localStorage.removeItem('fap_preview');
   localStorage.removeItem('fap_buy_intent');
@@ -419,7 +420,43 @@ let S={
 // (sempre a receita de entrada de cada categoria, pra dar uma amostra de tudo sem entregar o avançado)
 const PREVIEW_IDS=['fl001','fl021','fl036','fl051','fl066','fl081','fl101'];
 const CHECKOUT_URLS={base:'https://pagamento.luverisgroup.com.br/fdl?utm_source=app&utm_medium=preview&utm_content=base',limp:'https://pagamento.luverisgroup.com.br/fdl/limp?utm_source=app&utm_medium=upsell&utm_content=limp',leg:'https://pagamento.luverisgroup.com.br/fdl/leg?utm_source=app&utm_medium=upsell&utm_content=leg',form:'https://pagamento.luverisgroup.com.br/fdl/form?utm_source=app&utm_medium=upsell&utm_content=form',perf:'https://pagamento.luverisgroup.com.br/fdl/perf?utm_source=app&utm_medium=upsell&utm_content=perf'};
-const CHECKOUT_BASE=CHECKOUT_URLS.base;
+let CHECKOUT_BASE=CHECKOUT_URLS.base;
+// ── Veio do Essencial (link "ver a prévia" do app/e-mail do Essencial): mostra o upgrade com crédito e o prazo REAL (mesma janela do servidor) ──
+const ESS_CFG={p:'fdless',back:'https://fabricadalimpezaessencial.luverisgroup.com.br/'};
+var ESS=null,ESSUPG=null,_essTimer=null;
+(function(){try{
+  var q=new URLSearchParams(location.search),em=(q.get('email')||'').trim().toLowerCase();
+  if(q.get('from')==='ess'&&/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){ESS={email:em};localStorage.setItem('fap_ess',JSON.stringify(ESS));}
+  else{var sv=localStorage.getItem('fap_ess');if(sv)ESS=JSON.parse(sv);}
+}catch(e){ESS=null;}})();
+function _essUrl(){return 'https://pagamento.luverisgroup.com.br/'+ESS_CFG.p+'/upg?email='+encodeURIComponent(ESS.email)+'&utm_source=app&utm_medium=previa&utm_content=upg';}
+function _essBrl(v){return 'R$ '+Number(v).toFixed(2).replace('.',',');}
+function _essLeft(){
+  var ms=ESSUPG?Number(ESSUPG.expiraEm)-Date.now():0;
+  if(ms<=0)return'';
+  var h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);
+  return (h>=24?Math.floor(h/24)+'d ':'')+(h%24)+'h '+('0'+m).slice(-2)+'min';
+}
+function _essTick(){
+  if(_essTimer)clearInterval(_essTimer);
+  _essTimer=setInterval(function(){
+    if(!ESSUPG){clearInterval(_essTimer);return;}
+    if(Number(ESSUPG.expiraEm)-Date.now()<=0){ESSUPG=null;CHECKOUT_BASE=CHECKOUT_URLS.base=_ESS_BASE0;clearInterval(_essTimer);if(S.preview)render();return;}
+    var e=document.getElementById('ess-left');if(e)e.textContent=_essLeft();
+  },20000);
+}
+var _ESS_BASE0=CHECKOUT_URLS.base;
+function _essLoad(){
+  if(!ESS)return;
+  fetch('https://pagamento.luverisgroup.com.br/api/upgrade?p='+ESS_CFG.p+'&email='+encodeURIComponent(ESS.email),{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(d){
+      if(d&&d.naJanela&&Number(d.expiraEm)>Date.now()){ESSUPG=d;CHECKOUT_BASE=CHECKOUT_URLS.base=_essUrl();_essTick();}
+      if(S.preview)render();
+    }).catch(function(){});
+}
+_essLoad();
+
 const PDF_NAMES={base:'Fabrica-da-Limpeza-200-Formulas.pdf',limp:'Ouro-Automotivo-30-Formulas.pdf',leg:'Guia-de-Legalizacao.pdf',perf:'Perfumes-Casa-de-Rico-30-Receitas.pdf'};
 
 const $=id=>document.getElementById(id);
@@ -458,9 +495,10 @@ function rPreviewBar(){
   if(!S.preview||_fapHasBase())return'';
   return`<div class="prevbar">
     <span style="font-size:18px">👀</span>
-    <span class="prevbar-tx">Modo Prévia — ${PREVIEW_IDS.length} de ${AF.length} fórmulas liberadas de graça</span>
-    <a href="${CHECKOUT_BASE}" target="_blank" class="prevbar-cta" data-action="track-checkout" data-produto="base">Desbloquear tudo →</a>
+    <span class="prevbar-tx">${ESSUPG?`🎁 Seu upgrade: <b>${_essBrl(ESSUPG.preco)}</b> · termina em <b id="ess-left">${_essLeft()}</b>`:`Modo Prévia — ${PREVIEW_IDS.length} de ${AF.length} fórmulas liberadas de graça`}</span>
+    <a href="${CHECKOUT_BASE}" target="_blank" class="prevbar-cta" data-action="track-checkout" data-produto="base">${ESSUPG?'Fazer upgrade →':'Desbloquear tudo →'}</a>
   </div>
+    ${ESS?`<div style="margin:8px 16px 0;text-align:center"><a href="${ESS_CFG.back}" style="color:var(--mut);font-size:13px;text-decoration:underline">← Voltar ao meu app Essencial</a></div>`:''}
     <div style="margin:8px 16px 0;text-align:center"><button onclick="_fapExitPreviewToLogin()" style="background:none;border:none;color:var(--acc);font-size:14px;font-weight:700;text-decoration:underline;cursor:pointer;padding:6px">Já comprou? Entre com seu e-mail</button></div>
     ${localStorage.getItem('fap_buy_intent')?`<div onclick="_fapExitPreviewToLogin()" style="margin:8px 16px 0;padding:14px;background:#16a34a;color:#fff;border-radius:var(--r);font-size:15px;font-weight:700;text-align:center;cursor:pointer;line-height:1.35">✅ Comprou? Toque aqui e entre com o e-mail que usou na compra</div>`:''}`;
 }
