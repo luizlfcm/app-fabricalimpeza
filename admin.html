@@ -67,6 +67,15 @@ pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;
   <div class="dica">Para cancelar: consulte o e-mail, marque só o que quer remover e toque em Revogar. Os outros produtos do cliente não mudam.</div>
 
   <div id="out"></div>
+
+  <div style="margin-top:34px;padding-top:18px;border-top:1px solid #2a2f38">
+    <h1 style="font-size:16px">⏳ Reabrir upgrade do Essencial (passou das 72 h)</h1>
+    <p class="sub">Usa o e-mail e a senha acima. Reabre o preço com crédito (R$ 29,00) por mais um tempo e gera o link para mandar ao cliente.</p>
+    <label for="uhoras">Prazo, em horas</label>
+    <input type="text" id="uhoras" inputmode="numeric" value="72">
+    <button class="b2" id="btnU" style="width:100%;flex:none;margin-top:12px">Reabrir e gerar link</button>
+    <div id="outU"></div>
+  </div>
 </div>
 
 <script>
@@ -140,6 +149,29 @@ async function chamar(acao){
 document.getElementById('btnC').onclick = function(){ chamar('consultar'); };
 document.getElementById('btnS').onclick = function(){ chamar('salvar'); };
 document.getElementById('btnR').onclick = function(){ chamar('revogar'); };
+
+var CHECKOUT_API = 'https://pagamento.luverisgroup.com.br/api/reabrir-upgrade';
+var UPG_PRODUTO = 'fdless';
+function fmtU(ms){ return new Date(ms).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}); }
+function showU(cls, html){ document.getElementById('outU').innerHTML = '<div class="msg '+cls+'">'+html+'</div>'; }
+document.getElementById('btnU').onclick = async function(){
+  var email = document.getElementById('email').value.trim();
+  if(!email){ showU('err','Digite o e-mail do cliente lá em cima.'); return; }
+  if(!keyEl.value){ showU('err','Digite a senha admin.'); return; }
+  try { sessionStorage.setItem('adm_key', keyEl.value); } catch(e){}
+  showU('ok','Aguarde...');
+  try{
+    var r = await fetch(CHECKOUT_API, {method:'POST', headers:{'Content-Type':'application/json','x-admin-key':keyEl.value},
+      body: JSON.stringify({produto:UPG_PRODUTO, email:email, horas:Number(document.getElementById('uhoras').value)||72})});
+    var d = await r.json();
+    if(!d.ok){ showU('err', esc(d.error||'Erro')); return; }
+    var preco = 'R$ '+d.preco.toFixed(2).replace('.',',');
+    var msg = 'Oi! Reabri pra você o preço do upgrade da '+d.nome+': '+preco+' (com o crédito do Essencial), válido até '+fmtU(d.expiraEm)+'. Link: '+d.link;
+    showU('ok','<b>Pronto!</b> Preço: '+preco+' até '+esc(fmtU(d.expiraEm))+'<pre>'+esc(d.link)+'</pre><div class="row"><button class="b1" id="cU1">Copiar link</button><button class="b1" id="cU2">Copiar mensagem</button></div>');
+    document.getElementById('cU1').onclick = function(){ navigator.clipboard.writeText(d.link); this.textContent='Copiado ✓'; };
+    document.getElementById('cU2').onclick = function(){ navigator.clipboard.writeText(msg); this.textContent='Copiado ✓'; };
+  }catch(e){ showU('err','Falha de conexão: '+esc(e.message)); }
+};
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/admin-sw.js',{scope:'/admin.html'}).catch(function(){});}
 </script>
 </body>
