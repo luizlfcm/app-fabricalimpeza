@@ -1242,5 +1242,25 @@ if('serviceWorker' in navigator){
 document.addEventListener('DOMContentLoaded',init);
 
 </script>
+<script>
+// Convite para a Comunidade Luveris: só aparece quando a comunidade estiver no ar (COMUNIDADE_URL configurada no checkout) e para quem já é aluno.
+(function(){
+  var URL_='';
+  function poe(){
+    if(!URL_)return;
+    try{if(typeof S!=='undefined'&&S&&S.preview)return}catch(e){}
+    var m=document.getElementById('main');if(!m)return;
+    var wb=m.querySelector('.wb');if(!wb||m.querySelector('#com-card'))return;
+    var a=document.createElement('a');a.id='com-card';a.href=URL_+'/?utm_source=app&utm_medium=card';a.target='_blank';a.rel='noopener';
+    a.style.cssText='display:flex;gap:12px;align-items:center;margin:0 16px 14px;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--brd);border-left:3px solid var(--acc);text-decoration:none;color:var(--txt)';
+    a.innerHTML='<div style="font-size:26px">\ud83d\udcac</div><div style="flex:1"><div style="font-weight:800;font-size:15px">Comunidade Luveris</div><div style="font-size:12.5px;color:var(--mut);line-height:1.4">Tire d\u00favidas, mostre seus resultados e troque receitas com outros alunos.</div></div><div style="color:var(--acc);font-weight:800;font-size:13px;white-space:nowrap">Entrar \u2192</div>';
+    wb.insertAdjacentElement('afterend',a);
+  }
+  fetch('https://pagamento.luverisgroup.com.br/api/comunidade').then(function(r){return r.json()}).then(function(j){
+    if(!j||!/^https:\/\//.test(j.url||''))return;URL_=j.url;poe();
+    var m=document.getElementById('main');if(m)new MutationObserver(poe).observe(m,{childList:true});
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
