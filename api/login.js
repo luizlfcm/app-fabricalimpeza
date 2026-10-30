@@ -2,6 +2,12 @@
 // GET /api/login?email=cliente@email.com
 // Consulta o Redis (Upstash) e retorna as permissoes do cliente por produto.
 
+function primeiroNome(n) {
+  const t = String(n || '').trim().split(/\s+/)[0] || '';
+  if (!/^[A-Za-zÀ-ÿ]{2,20}$/.test(t) || /^cliente$/i.test(t)) return '';
+  return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+}
+
 export default async function handler(req, res) {
   const UPSTASH_URL = process.env.KV_REST_API_URL;
   const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -42,7 +48,7 @@ export default async function handler(req, res) {
       perf: !!cliente.perf,
     };
 
-    return res.status(200).json({ success: true, permissions });
+    return res.status(200).json({ success: true, permissions, nome: primeiroNome(cliente.nome) });
   } catch (err) {
     console.error('Erro no login:', err);
     return res.status(500).json({ success: false, error: 'Erro de conexão. Tente novamente.' });
