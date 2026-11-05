@@ -871,23 +871,28 @@ function rExclusiva(){
 // ── EXCLUSIVA: formulário dentro do app (substitui o pedido por WhatsApp) ──
 const EXC_PROD='fdl', EXC_API='https://pagamento.luverisgroup.com.br/api/exclusiva', EXC_MAX=5, EXC_KEY='fap_exc_draft';
 function excEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function excDraft(){try{return JSON.parse(localStorage.getItem(EXC_KEY)||'null')||{c:'',i:[{n:'',d:'',k:''}]}}catch(e){return{c:'',i:[{n:'',d:'',k:''}]}}}
+function excDraft(){try{return JSON.parse(localStorage.getItem(EXC_KEY)||'null')||{c:'',i:[{n:'',d:'',k:'',q:''}]}}catch(e){return{c:'',i:[{n:'',d:'',k:'',q:''}]}}}
 function excSave(d){try{localStorage.setItem(EXC_KEY,JSON.stringify(d))}catch(e){}}
 function excCampos(){
   var d=excDraft(),box=document.getElementById('exc-root');if(!box)return d;
-  var it=[];box.querySelectorAll('.exc-it').forEach(function(el){it.push({n:el.querySelector('[data-f=n]').value,d:el.querySelector('[data-f=d]').value,k:el.querySelector('[data-f=k]').value})});
+  var it=[];box.querySelectorAll('.exc-it').forEach(function(el){it.push({n:el.querySelector('[data-f=n]').value,d:el.querySelector('[data-f=d]').value,k:el.querySelector('[data-f=k]').value,q:el.getAttribute('data-q')||''})});
   var c=box.querySelector('#exc-contato');d={c:c?c.value:d.c,i:it.length?it:d.i};excSave(d);return d;
 }
 function excForm(msg){
   var box=document.getElementById('exc-root');if(!box)return;var d=excDraft();
   var h='<div style="padding:0 16px">';
   d.i.forEach(function(x,n){
-    h+='<div class="exc-it" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px">'
+    h+='<div class="exc-it" data-q="'+excEsc(x.q||'')+'" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:11px;color:var(--acc);font-weight:800;letter-spacing:1px;text-transform:uppercase">Fórmula '+(n+1)+(n===0?' (obrigatória)':'')+'</div>'
     +(n>0?'<button type="button" data-exc="del" data-n="'+n+'" style="background:none;border:0;color:var(--mut);font-size:12px;cursor:pointer">remover ✕</button>':'')+'</div>'
     +'<input data-f="n" maxlength="120" placeholder="Nome do produto (ex.: Desengraxante)" value="'+excEsc(x.n)+'" style="'+EXC_INP+'">'
     +'<textarea data-f="d" maxlength="1500" rows="4" placeholder="Descrição: para que serve, quem vai comprar, concorrentes ou referências, observações…" style="'+EXC_INP+'margin-top:8px;resize:vertical">'+excEsc(x.d)+'</textarea>'
-    +'<input data-f="k" maxlength="30" placeholder="Custo por litro desejado (opcional)" value="'+excEsc(x.k)+'" style="'+EXC_INP+'margin-top:8px"></div>';
+    +'<div style="font-size:12px;font-weight:700;color:var(--txt);margin:12px 0 2px">Custo esperado por litro (opcional)</div>'
+    +'<div style="font-size:11px;color:var(--dim);margin-bottom:6px;line-height:1.4">Quanto você pretende gastar para produzir 1 litro deste produto.</div>'
+    +'<input data-f="k" maxlength="30" inputmode="decimal" placeholder="ex.: R$ 4,00" value="'+excEsc(x.k)+'" style="'+EXC_INP+'">'
+    +'<div style="font-size:12px;font-weight:700;color:var(--txt);margin:14px 0 6px">Nível de qualidade desejado</div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap">'+EXC_Q.map(function(q){var on=x.q===q.v;return'<button type="button" data-exc="q" data-n="'+n+'" data-v="'+q.v+'" style="flex:1;min-width:92px;padding:9px 6px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid '+(on?'var(--acc)':'var(--brd)')+';background:'+(on?'var(--acc)':'var(--bg2)')+';color:'+(on?'#fff':'var(--mut)')+'">'+q.t+'</button>'}).join('')+'</div>'
+    +'<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.5">💡 Quanto mais premium o produto, maior o custo de produção (ingredientes mais nobres e concentrados).</div></div>';
   });
   if(d.i.length<EXC_MAX)h+='<button type="button" data-exc="add" style="width:100%;padding:12px;border-radius:var(--r);border:1px dashed var(--brd);background:none;color:var(--acc);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px">＋ Adicionar outra fórmula ('+d.i.length+'/'+EXC_MAX+')</button>';
   h+='<div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="font-size:11px;color:var(--acc);font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Para onde enviamos a resposta?</div>'
@@ -898,6 +903,7 @@ function excForm(msg){
   box.innerHTML=h;
 }
 const EXC_DUV='<a href="https://wa.me/'+WA+'?text='+encodeURIComponent('Olá João! Tenho uma dúvida sobre a Fórmula Exclusiva.')+'" target="_blank" rel="noopener" class="wa-btn" style="margin:0 16px 8px">💬 Dúvidas? Falar com o João</a><div style="text-align:center;font-size:12px;color:var(--dim);padding:0 16px 24px">Respondido em até 24h em dias úteis</div>';
+const EXC_Q=[{v:'economica',t:'💲 Econômica'},{v:'intermediaria',t:'⭐ Média'},{v:'premium',t:'💎 Premium'}];
 const EXC_INP='width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:11px 12px;color:var(--txt);font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;';
 function excStatus(p){return p.status==='entregue'?'✅ Entregue':p.status==='andamento'?'🧪 Em desenvolvimento':'📨 Recebido'}
 function excEnviados(lista){
@@ -923,12 +929,13 @@ function excInit(){
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-exc]');if(!b)return;
   var a=b.getAttribute('data-exc'),d;
-  if(a==='add'){d=excCampos();if(d.i.length<EXC_MAX){d.i.push({n:'',d:'',k:''});excSave(d);excForm()}}
-  else if(a==='del'){d=excCampos();d.i.splice(+b.getAttribute('data-n'),1);if(!d.i.length)d.i=[{n:'',d:'',k:''}];excSave(d);excForm()}
+  if(a==='add'){d=excCampos();if(d.i.length<EXC_MAX){d.i.push({n:'',d:'',k:'',q:''});excSave(d);excForm()}}
+  else if(a==='q'){d=excCampos();var n=+b.getAttribute('data-n'),v=b.getAttribute('data-v');d.i[n].q=d.i[n].q===v?'':v;excSave(d);excForm()}
+  else if(a==='del'){d=excCampos();d.i.splice(+b.getAttribute('data-n'),1);if(!d.i.length)d.i=[{n:'',d:'',k:'',q:''}];excSave(d);excForm()}
   else if(a==='novo'){window._excNovo=1;excForm()}
   else if(a==='send'){
     d=excCampos();
-    var itens=d.i.filter(function(x){return x.n.trim()}).map(function(x){return{nome:x.n.trim(),descricao:x.d.trim(),custo:x.k.trim()}});
+    var itens=d.i.filter(function(x){return x.n.trim()}).map(function(x){return{nome:x.n.trim(),descricao:x.d.trim(),custo:x.k.trim(),qualidade:x.q||''}});
     var c=d.c.trim(),dig=c.replace(/\D/g,'');
     if(!itens.length||!d.i[0].n.trim())return excForm('Preencha pelo menos o nome do produto da Fórmula 1.');
     if(!(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c)||(dig.length>=10&&dig.length<=13)))return excForm('Informe um WhatsApp com DDD ou um e-mail válido para a resposta.');
