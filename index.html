@@ -852,30 +852,96 @@ function rLegalCap(){
 // ── EXCLUSIVA ──────────────────────────────────────────────────────
 function rExclusiva(){
   if(!S.access.form&&!S.access.admin)return rLocked('⚗️','Fórmula Exclusiva',CHECKOUT_URLS.form,'R$19,90','form');
+  setTimeout(excInit,0);
   return`
   <div class="sah">
     <div class="bb" data-action="go" data-v="home">‹</div>
     <div class="sat"><div class="sat-icon">⚗️</div><div class="sat-name">Fórmula Exclusiva</div><div class="sat-sub">Fórmulas desenvolvidas para o seu negócio</div></div>
   </div>
   <div class="ex-box">
-    <div style="font-size:20px;font-weight:800;margin-bottom:6px;color:var(--txt)">O que você recebe</div>
-    <div style="font-size:13px;color:var(--mut);margin-bottom:16px;line-height:1.6">3 a 5 fórmulas desenvolvidas especialmente para as suas necessidades pelo João Silva, Engenheiro Químico com mais de 10 anos de experiência.</div>
-    <div class="ex-step"><div class="ex-num">1</div><div class="ex-txt"><b>Descreva o produto que você quer</b><br>Nome, finalidade, perfil de cliente, concorrentes e qualquer referência que tenha.</div></div>
-    <div class="ex-step"><div class="ex-num">2</div><div class="ex-txt"><b>Informe o orçamento por litro</b><br>Assim o João vai desenvolver a fórmula dentro da sua realidade de custo.</div></div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px;color:var(--txt)">Como funciona</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:16px;line-height:1.6">Até 5 fórmulas desenvolvidas especialmente para as suas necessidades pelo João Silva, Engenheiro Químico registrado no CREA.</div>
+    <div class="ex-step"><div class="ex-num">1</div><div class="ex-txt"><b>Preencha o formulário abaixo</b><br>Uma fórmula por vez: o produto que você quer, para que serve e o custo por litro que cabe no seu bolso.</div></div>
+    <div class="ex-step"><div class="ex-num">2</div><div class="ex-txt"><b>Deixe seu WhatsApp ou e-mail</b><br>É por lá que o João vai te responder.</div></div>
     <div class="ex-step"><div class="ex-num">3</div><div class="ex-txt"><b>Receba as fórmulas em até 5 dias úteis</b><br>Com ingredientes, modo de preparo, diluição e argumento de venda.</div></div>
-    <div class="ex-step"><div class="ex-num">4</div><div class="ex-txt"><b>Tire dúvidas diretamente com o formulador</b><br>1 rodada de ajustes incluída na compra.</div></div>
   </div>
-  <div style="padding:0 16px;margin-bottom:8px">
-    <div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px">
-      <div style="font-size:10px;color:var(--acc);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📝 Modelo de Mensagem</div>
-      <div class="ex-msg" style="margin:0;background:var(--bg2);font-family:'Courier New',monospace;font-size:12px;line-height:1.8">Olá João! Comprei a Fórmula Exclusiva.<br><br>Produto desejado: [descreva aqui]<br>Finalidade: [para que serve]<br>Público: [quem vai comprar]<br>Custo por litro desejado: R$ [valor]<br>Observações: [outras informações]</div>
-    </div>
-  </div>
-  <a href="https://wa.me/${WA}?text=Ol%C3%A1+Jo%C3%A3o!+Comprei+a+F%C3%B3rmula+Exclusiva+e+quero+solicitar+minhas+f%C3%B3rmulas." target="_blank" class="wa-btn">
-    💬 Enviar mensagem no WhatsApp
-  </a>
-  <div style="padding:16px;text-align:center;font-size:12px;color:var(--dim)">João Silva — (81) 3196-3052<br>Respondido em até 24h em dias úteis</div>`;
+  <div id="exc-root" class="exc"><div style="padding:24px;text-align:center;color:var(--mut);font-size:13px">Carregando…</div></div>`;
 }
+
+// ── EXCLUSIVA: formulário dentro do app (substitui o pedido por WhatsApp) ──
+const EXC_PROD='fdl', EXC_API='https://pagamento.luverisgroup.com.br/api/exclusiva', EXC_MAX=5, EXC_KEY='fap_exc_draft';
+function excEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function excDraft(){try{return JSON.parse(localStorage.getItem(EXC_KEY)||'null')||{c:'',i:[{n:'',d:'',k:''}]}}catch(e){return{c:'',i:[{n:'',d:'',k:''}]}}}
+function excSave(d){try{localStorage.setItem(EXC_KEY,JSON.stringify(d))}catch(e){}}
+function excCampos(){
+  var d=excDraft(),box=document.getElementById('exc-root');if(!box)return d;
+  var it=[];box.querySelectorAll('.exc-it').forEach(function(el){it.push({n:el.querySelector('[data-f=n]').value,d:el.querySelector('[data-f=d]').value,k:el.querySelector('[data-f=k]').value})});
+  var c=box.querySelector('#exc-contato');d={c:c?c.value:d.c,i:it.length?it:d.i};excSave(d);return d;
+}
+function excForm(msg){
+  var box=document.getElementById('exc-root');if(!box)return;var d=excDraft();
+  var h='<div style="padding:0 16px">';
+  d.i.forEach(function(x,n){
+    h+='<div class="exc-it" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:11px;color:var(--acc);font-weight:800;letter-spacing:1px;text-transform:uppercase">Fórmula '+(n+1)+(n===0?' (obrigatória)':'')+'</div>'
+    +(n>0?'<button type="button" data-exc="del" data-n="'+n+'" style="background:none;border:0;color:var(--mut);font-size:12px;cursor:pointer">remover ✕</button>':'')+'</div>'
+    +'<input data-f="n" maxlength="120" placeholder="Nome do produto (ex.: Desengraxante)" value="'+excEsc(x.n)+'" style="'+EXC_INP+'">'
+    +'<textarea data-f="d" maxlength="1500" rows="4" placeholder="Descrição: para que serve, quem vai comprar, concorrentes ou referências, observações…" style="'+EXC_INP+'margin-top:8px;resize:vertical">'+excEsc(x.d)+'</textarea>'
+    +'<input data-f="k" maxlength="30" placeholder="Custo por litro desejado (opcional)" value="'+excEsc(x.k)+'" style="'+EXC_INP+'margin-top:8px"></div>';
+  });
+  if(d.i.length<EXC_MAX)h+='<button type="button" data-exc="add" style="width:100%;padding:12px;border-radius:var(--r);border:1px dashed var(--brd);background:none;color:var(--acc);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px">＋ Adicionar outra fórmula ('+d.i.length+'/'+EXC_MAX+')</button>';
+  h+='<div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="font-size:11px;color:var(--acc);font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Para onde enviamos a resposta?</div>'
+    +'<input id="exc-contato" maxlength="120" placeholder="Seu WhatsApp (com DDD) ou e-mail" value="'+excEsc(d.c)+'" style="'+EXC_INP+'"><div style="font-size:11px;color:var(--dim);margin-top:6px">Informe um dos dois.</div></div>'
+    +(msg?'<div style="color:#ff7b72;font-size:13px;margin-bottom:10px;line-height:1.5">'+excEsc(msg)+'</div>':'')
+    +'<button type="button" data-exc="send" style="width:100%;padding:15px;border:0;border-radius:var(--r);background:linear-gradient(135deg,var(--acc),var(--acd));color:#fff;font-size:15px;font-weight:800;cursor:pointer">📨 Enviar meus pedidos</button>'
+    +'<div style="padding:14px 0 20px;text-align:center;font-size:12px;color:var(--dim)">Seus dados ficam salvos neste aparelho até você enviar.</div></div>';
+  box.innerHTML=h;
+}
+const EXC_INP='width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:11px 12px;color:var(--txt);font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;';
+function excStatus(p){return p.status==='entregue'?'✅ Entregue':p.status==='andamento'?'🧪 Em desenvolvimento':'📨 Recebido'}
+function excEnviados(lista){
+  var box=document.getElementById('exc-root');if(!box)return;
+  var h='<div style="padding:0 16px">';
+  lista.forEach(function(p){
+    h+='<div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:8px"><span>Pedido de '+excEsc(new Date(p.criadoEm).toLocaleDateString('pt-BR'))+'</span><b style="color:var(--acc)">'+excStatus(p)+'</b></div>'
+    +p.itens.map(function(i,n){return'<div style="font-size:13px;line-height:1.5;margin-bottom:4px"><b>Fórmula '+(n+1)+':</b> '+excEsc(i.nome)+'</div>'}).join('')
+    +'<div style="font-size:12px;color:var(--dim);margin-top:8px">Resposta será enviada para: '+excEsc(p.contato)+'</div></div>';
+  });
+  h+='<div style="font-size:12px;color:var(--mut);text-align:center;line-height:1.6;padding:6px 8px 12px">Prazo: até 5 dias úteis. Volte aqui para acompanhar o andamento.</div>';
+  if(lista.length<3)h+='<button type="button" data-exc="novo" style="width:100%;padding:12px;border-radius:var(--r);border:1px solid var(--brd);background:none;color:var(--txt);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:20px">Fazer um novo pedido</button>';
+  box.innerHTML=h+'</div>';
+}
+function excInit(){
+  var box=document.getElementById('exc-root');if(!box)return;
+  var em=(localStorage.getItem('fap_email')||'').trim();
+  if(S.access.admin||!em||em==='admin@fap.com'){excForm();return}
+  fetch(EXC_API+'?produto='+EXC_PROD+'&email='+encodeURIComponent(em),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+    if(d&&d.ok&&d.pedidos&&d.pedidos.length&&!window._excNovo)excEnviados(d.pedidos);else excForm();
+  }).catch(function(){excForm()});
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('[data-exc]');if(!b)return;
+  var a=b.getAttribute('data-exc'),d;
+  if(a==='add'){d=excCampos();if(d.i.length<EXC_MAX){d.i.push({n:'',d:'',k:''});excSave(d);excForm()}}
+  else if(a==='del'){d=excCampos();d.i.splice(+b.getAttribute('data-n'),1);if(!d.i.length)d.i=[{n:'',d:'',k:''}];excSave(d);excForm()}
+  else if(a==='novo'){window._excNovo=1;excForm()}
+  else if(a==='send'){
+    d=excCampos();
+    var itens=d.i.filter(function(x){return x.n.trim()}).map(function(x){return{nome:x.n.trim(),descricao:x.d.trim(),custo:x.k.trim()}});
+    var c=d.c.trim(),dig=c.replace(/\D/g,'');
+    if(!itens.length||!d.i[0].n.trim())return excForm('Preencha pelo menos o nome do produto da Fórmula 1.');
+    if(!(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c)||(dig.length>=10&&dig.length<=13)))return excForm('Informe um WhatsApp com DDD ou um e-mail válido para a resposta.');
+    var em=(localStorage.getItem('fap_email')||'').trim();
+    if(S.access.admin||!em||em==='admin@fap.com')return excForm('Entre no app com o e-mail da compra para enviar o pedido.');
+    b.disabled=true;b.textContent='Enviando…';
+    fetch(EXC_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({produto:EXC_PROD,email:em,contato:c,itens:itens})})
+    .then(function(r){return r.json()}).then(function(j){
+      if(!j.ok)return excForm(j.error||'Não foi possível enviar. Tente de novo.');
+      try{localStorage.removeItem(EXC_KEY)}catch(x){}
+      window._excNovo=0;excInit();
+    }).catch(function(){excForm('Sem conexão. Seus dados estão salvos — tente de novo.')});
+  }
+});
 
 // ── LOCKED STATE ──────────────────────────────────────────────────
 function rLocked(icon,name,url,price,prodKey){
