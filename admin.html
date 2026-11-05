@@ -76,6 +76,14 @@ pre{background:#111418;border:1px solid #2a2f38;border-radius:10px;padding:12px;
     <button class="b2" id="btnU" style="width:100%;flex:none;margin-top:12px">Reabrir e gerar link</button>
     <div id="outU"></div>
   </div>
+
+  <div id="exc-sec" style="margin-top:34px;padding-top:18px;border-top:1px solid #2a2f38">
+    <h1 style="font-size:16px">🧪 Pedidos de Fórmula Exclusiva <span id="exc-badge" style="display:none;background:#d29922;color:#000;border-radius:99px;padding:2px 9px;font-size:12px;margin-left:6px"></span></h1>
+    <p class="sub">Pedidos enviados pelos clientes nos apps (Fábrica da Limpeza e Fórmula Auto Pro). Usa a senha admin acima.</p>
+    <button class="b1" id="exc-load" style="width:100%;flex:none">Carregar pedidos</button>
+    <div id="exc-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0"></div>
+    <div id="exc-list"></div>
+  </div>
 </div>
 
 <script>
@@ -172,6 +180,48 @@ document.getElementById('btnU').onclick = async function(){
     document.getElementById('cU2').onclick = function(){ navigator.clipboard.writeText(msg); this.textContent='Copiado ✓'; };
   }catch(e){ showU('err','Falha de conexão: '+esc(e.message)); }
 };
+
+var EXC_API='https://pagamento.luverisgroup.com.br/api/exclusiva', EXC_P=[], EXC_F='novo', EXC_N={novo:'Novos',andamento:'Em andamento',entregue:'Entregues',todos:'Todos'};
+function excEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function excDt(s){try{return new Date(s).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'})}catch(e){return s}}
+function excLink(c){c=String(c||'');if(/@/.test(c))return '<a style="color:#58a6ff" href="mailto:'+excEsc(c)+'">'+excEsc(c)+'</a>';var d=c.replace(/\D/g,'');if(d.length<=11)d='55'+d;return excEsc(c)+' · <a style="color:#58a6ff" href="https://wa.me/'+d+'" target="_blank" rel="noopener">WhatsApp</a>'}
+function excDraw(){
+  var n={todos:EXC_P.length};['novo','andamento','entregue'].forEach(function(s){n[s]=EXC_P.filter(function(p){return p.status===s}).length});
+  var b=document.getElementById('exc-badge');b.style.display=n.novo?'inline-block':'none';b.textContent=n.novo+' novo'+(n.novo>1?'s':'');
+  document.getElementById('exc-tabs').innerHTML=['novo','andamento','entregue','todos'].map(function(s){return '<button type="button" data-ef="'+s+'" style="flex:none;padding:8px 12px;font-size:13px;'+(EXC_F===s?'background:#1f6feb;color:#fff':'background:#2a2f38;color:#e8edf2')+'">'+EXC_N[s]+' ('+n[s]+')</button>'}).join('');
+  var L=EXC_P.filter(function(p){return EXC_F==='todos'||p.status===EXC_F});
+  document.getElementById('exc-list').innerHTML=L.length?L.map(function(p){
+    var cor=p.status==='novo'?'#d29922':'#2a2f38';
+    return '<div data-eid="'+p.id+'" style="background:#111418;border:1px solid '+cor+';border-radius:12px;padding:14px;margin:10px 0;'+(p.status==='entregue'?'opacity:.65':'')+'">'
+    +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:#8b949e"><span>'+excDt(p.criadoEm)+' · '+excEsc(p.produtoNome||p.produto)+'</span><b>'+EXC_N[p.status]+'</b></div>'
+    +'<div style="margin:8px 0;font-size:14px"><b>'+excEsc(p.nome||'')+'</b> · '+excEsc(p.email)+'<br>Resposta: '+excLink(p.contato)+'</div>'
+    +p.itens.map(function(i,k){return '<div style="background:#0b0e12;border-radius:8px;padding:10px;margin:8px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word"><b style="color:#f0b400">Fórmula '+(k+1)+': '+excEsc(i.nome)+'</b>'+(i.descricao?'\n'+excEsc(i.descricao):'')+(i.custo?'\n<i>Custo desejado: '+excEsc(i.custo)+'</i>':'')+'</div>'}).join('')
+    +'<textarea data-enota placeholder="Anotação interna (opcional)" style="width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid #2a2f38;background:#0b0e12;color:#fff;font-size:13px;font-family:inherit;min-height:44px">'+excEsc(p.nota||'')+'</textarea>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'
+    +(p.status!=='andamento'?'<button type="button" data-es="andamento" class="b1" style="flex:none;padding:9px 12px;font-size:13px">▶ Em andamento</button>':'')
+    +(p.status!=='entregue'?'<button type="button" data-es="entregue" class="b2" style="flex:none;padding:9px 12px;font-size:13px">✅ Marcar como entregue</button>':'')
+    +(p.status!=='novo'?'<button type="button" data-es="novo" class="b1" style="flex:none;padding:9px 12px;font-size:13px">↩ Voltar p/ novo</button>':'')+'</div></div>';
+  }).join(''):'<p class="sub">Nenhum pedido aqui.</p>';
+}
+function excLoad(silencioso){
+  if(!keyEl.value){if(!silencioso)alert('Digite a senha admin.');return}
+  try{sessionStorage.setItem('adm_key',keyEl.value)}catch(e){}
+  fetch(EXC_API,{headers:{'x-admin-key':keyEl.value},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+    if(!d.ok){if(!silencioso)alert(d.error||'Erro');return}
+    EXC_P=d.pedidos||[];excDraw();
+  }).catch(function(){if(!silencioso)alert('Falha de conexão.')});
+}
+document.getElementById('exc-load').onclick=function(){excLoad(false)};
+document.getElementById('exc-tabs').onclick=function(e){var f=e.target.getAttribute('data-ef');if(f){EXC_F=f;excDraw()}};
+document.getElementById('exc-list').onclick=function(e){
+  var s=e.target.getAttribute('data-es');if(!s)return;
+  var card=e.target.closest('[data-eid]'),id=card.getAttribute('data-eid'),nota=card.querySelector('[data-enota]').value;
+  e.target.disabled=true;
+  fetch(EXC_API,{method:'POST',headers:{'Content-Type':'application/json','x-admin-key':keyEl.value},body:JSON.stringify({acao:'status',id:id,status:s,nota:nota})})
+  .then(function(r){return r.json()}).then(function(d){if(!d.ok){alert(d.error||'Erro');e.target.disabled=false;return}
+    EXC_P=EXC_P.map(function(p){return p.id===id?d.pedido:p});excDraw()}).catch(function(){alert('Falha de conexão.');e.target.disabled=false});
+};
+if(keyEl.value)excLoad(true);
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/admin-sw.js',{scope:'/admin.html'}).catch(function(){});}
 </script>
 </body>
