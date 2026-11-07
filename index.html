@@ -188,12 +188,33 @@ table.ft td:last-child{color:var(--acl);font-weight:700;font-family:'Courier New
 #search-inp{width:100%;background:var(--card);border:1px solid var(--acc);border-radius:8px;padding:12px 14px 12px 36px;color:var(--txt);font-size:15px;outline:none;direction:ltr;text-align:left;unicode-bidi:embed;}
 #search-icon{position:absolute;left:26px;top:50%;transform:translateY(-50%);color:var(--mut);pointer-events:none;}
 #search-results{min-height:200px;animation:fi .2s ease;}
+
+/* ONDE COMPRAR (catálogo de insumos) */
+.ic-tools{padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--brd)}
+.ic-tools input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:10px 13px;color:var(--txt);font-size:14px;outline:none;box-sizing:border-box}
+.ic-tools input:focus{border-color:var(--acc)}
+.ic-chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}.ic-chips::-webkit-scrollbar{display:none}
+.ic-chip{flex:none;padding:7px 12px;border-radius:99px;border:1px solid var(--brd);background:var(--card);color:var(--mut);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ic-chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.ic-card{margin:10px 16px;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:13px}
+.ic-n{font-weight:800;font-size:14px;color:var(--txt);line-height:1.3}
+.ic-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--mut);margin:6px 4px 0 0}
+.ic-tag.p1{background:rgba(46,160,67,.18);color:#4ade80}.ic-tag.p3{background:rgba(210,153,34,.18);color:#f0b400}
+.ic-u{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.5}
+.ic-v{font-size:12px;color:var(--txt);margin-top:6px;line-height:1.5}.ic-v b{color:var(--acc)}
+.ic-a{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.4}
+.ic-b{display:flex;gap:8px;margin-top:11px}
+.ic-b a,.gl-b a{flex:1;text-align:center;text-decoration:none;font-size:12px;font-weight:800;padding:10px 6px;border-radius:9px;color:#fff}
+.ic-ml,.gl-b .ic-ml{background:#e6b800;color:#222!important}.ic-sh,.gl-b .ic-sh{background:#ee4d2d}
+.gl-b{display:flex;gap:4px;min-width:120px}.gl-b a{padding:6px 4px;font-size:10px;border-radius:6px}
+.ic-more{display:block;margin:14px 16px 24px;width:calc(100% - 32px);padding:12px;border-radius:var(--r);border:1px solid var(--brd);background:none;color:var(--txt);font-size:13px;font-weight:700;cursor:pointer}
+.ic-note{margin:12px 16px 0;font-size:11px;color:var(--dim);line-height:1.5}
 /* GLOSSARY */
 .gs{padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--brd);}
 .gs input{width:100%;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:10px 13px;color:var(--txt);font-size:14px;outline:none;direction:ltr;}
 .gs input:focus{border-color:var(--acc);}
 .gw{overflow-x:auto;}
-table.gt{width:100%;border-collapse:collapse;min-width:560px;}
+table.gt{width:100%;border-collapse:collapse;min-width:700px;}
 table.gt th{background:var(--bg2);color:var(--mut);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:7px 10px;text-align:left;border-bottom:1px solid var(--brd);}
 table.gt td{padding:8px 10px;font-size:11px;border-bottom:1px solid var(--brd);vertical-align:top;}
 table.gt tr:hover td{background:var(--ch);}
@@ -523,6 +544,7 @@ function render(){
     case'search':    html=rSearchShell();break;
     case'favs':      html=rFavs();break;
     case'gloss':     html=rGloss();break;
+    case'insumos':   html=rInsumos();break;
     case'supp':      html=rSupp();break;
   }
   el.innerHTML=rPreviewBar()+html;
@@ -567,6 +589,7 @@ function rHome(){
 
   const utils=`
   <div class="uc" data-action="go" data-v="gloss"><div class="uc-icon">📚</div><div class="uc-name">Glossário</div><div class="uc-sub">${GL.length} insumos com preço</div></div>
+  <div class="uc" data-action="go" data-v="insumos"><div class="uc-icon">🛒</div><div class="uc-name">Onde comprar</div><div class="uc-sub">Mercado Livre + Shopee</div></div>
   <div class="uc" data-action="go" data-v="supp"><div class="uc-icon">📍</div><div class="uc-name">Fornecedores</div><div class="uc-sub">Nacional + Online</div></div>`;
 
   const bons=BO.map(b=>`<a href="${b.url}" target="_blank" class="bc"><div class="bic">${b.icon}</div><div class="bn">${b.name}</div><div class="bd">${b.desc}</div><span class="bl">Acessar →</span></a>`).join('');
@@ -1069,10 +1092,73 @@ function rGloss(){
     <div class="sat"><div class="sat-icon">📚</div><div class="sat-name">Glossário de Insumos</div><div class="sat-sub">${GL.length} ingredientes com função e preço</div></div>
   </div>
   <div class="gs"><input type="text" id="gi" dir="ltr" autocomplete="off" placeholder="Filtrar ingredientes..."></div>
-  <div class="gw"><table class="gt"><thead><tr><th>Insumo</th><th>Uso</th><th>Função Principal</th><th>Substituto</th><th>Preço</th></tr></thead><tbody id="gb">
-  ${GL.map(([n,u,fn,sub,p])=>`<tr><td><div class="gn">${n}</div></td><td class="gm">${u}</td><td class="gm">${fn}</td><td class="gm">${sub}</td><td class="gp">${p}</td></tr>`).join('')}
+  <div class="gw"><table class="gt"><thead><tr><th>Insumo</th><th>Uso</th><th>Função Principal</th><th>Substituto</th><th>Preço</th><th>Comprar</th></tr></thead><tbody id="gb">
+  ${GL.map(([n,u,fn,sub,p])=>`<tr><td><div class="gn">${n}</div></td><td class="gm">${u}</td><td class="gm">${fn}</td><td class="gm">${sub}</td><td class="gp">${p}</td><td><div class="gl-b">${insBtns(n.replace(/\(.*?\)/g,"").replace(/[0-9]+[.,]?[0-9]*\s*%/g,m=>m).trim()+" insumo")}</div></td></tr>`).join('')}
   </tbody></table></div>`;
 }
+
+
+// ── ONDE COMPRAR: catálogo único (mesmo arquivo para os dois cursos) ─────────────
+const INS_URL='https://pagamento.luverisgroup.com.br/catalogo-insumos.json', INS_SEG='L', INS_KEY='fap_catalogo_v1', INS_PAGE=40;
+const INS_G=['Matérias-primas','Embalagens','Equipamentos','Uso e aplicação','Segurança e conformidade'];
+const insSt={all:null,q:'',g:'',ess:true,n:INS_PAGE,erro:false};
+function insMl(q){q=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');return'https://lista.mercadolivre.com.br/'+q}
+function insSh(q){return'https://shopee.com.br/search?keyword='+encodeURIComponent(q).replace(/%20/g,'+')}
+function insBtns(q,cls){return'<a class="ic-ml" href="'+insMl(q)+'" target="_blank" rel="noopener">🛒 Mercado Livre</a><a class="ic-sh" href="'+insSh(q)+'" target="_blank" rel="noopener">🛍️ Shopee</a>'}
+function insEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function insNorm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function insCarrega(cb){
+  if(insSt.all)return cb();
+  try{var c=JSON.parse(localStorage.getItem(INS_KEY)||'null');if(c&&c.itens){insSt.all=c.itens;cb()}}catch(e){}
+  fetch(INS_URL,{cache:'no-cache'}).then(function(r){return r.json()}).then(function(d){
+    insSt.all=d.itens;insSt.erro=false;try{localStorage.setItem(INS_KEY,JSON.stringify(d))}catch(e){}cb();
+  }).catch(function(){if(!insSt.all){insSt.erro=true}cb()});
+}
+function insLista(){
+  var base=(insSt.all||[]).filter(function(i){return i.s==='B'||i.s===INS_SEG});
+  var q=insNorm(insSt.q).trim();
+  var L=base.filter(function(i){
+    if(insSt.g&&i.g!==insSt.g)return false;
+    if(insSt.ess&&i.p>1&&!q)return false;
+    if(q&&insNorm(i.n+' '+i.sg+' '+i.u+' '+i.q).indexOf(q)<0)return false;
+    return true;
+  });
+  return{base:base,L:L};
+}
+function insDraw(){
+  var box=document.getElementById('ic-box');if(!box)return;
+  if(!insSt.all){box.innerHTML='<div style="padding:30px 16px;text-align:center;color:var(--mut);font-size:13px">'+(insSt.erro?'Não foi possível carregar agora. Verifique a internet e tente de novo.':'Carregando catálogo…')+'</div>';return}
+  var r=insLista(),L=r.L,h='';
+  L.slice(0,insSt.n).forEach(function(i){
+    h+='<div class="ic-card"><div class="ic-n">'+insEsc(i.n)+'</div><span class="ic-tag">'+insEsc(i.sg)+'</span>'+(i.p===1?'<span class="ic-tag p1">Essencial</span>':i.p===3?'<span class="ic-tag p3">Especializado</span>':'')
+    +'<div class="ic-u">'+insEsc(i.u)+'</div><div class="ic-v"><b>Conferir antes de comprar:</b> '+insEsc(i.v)+'</div>'+(i.a?'<div class="ic-a">⚠️ '+insEsc(i.a)+'</div>':'')
+    +'<div class="ic-b">'+insBtns(i.q)+'</div></div>';
+  });
+  if(!L.length)h='<div style="padding:30px 16px;text-align:center;color:var(--mut);font-size:13px">Nada encontrado. Tente outro termo'+(insSt.ess?' ou desmarque “Só essenciais”':'')+'.</div>';
+  if(L.length>insSt.n)h+='<button class="ic-more" data-ins="mais">Ver mais ('+(L.length-insSt.n)+')</button>';
+  document.getElementById('ic-count').textContent=L.length+' de '+r.base.length+' itens';
+  box.innerHTML=h;
+}
+function rInsumos(){
+  setTimeout(function(){insCarrega(insDraw)},0);
+  return`
+  <div class="sah">
+    <div class="bb" data-action="go" data-v="home">‹</div>
+    <div class="sat"><div class="sat-icon">🛒</div><div class="sat-name">Onde comprar</div><div class="sat-sub">Insumos, embalagens e equipamentos — busca rápida</div></div>
+  </div>
+  <div class="ic-tools"><input type="text" id="ic-q" dir="ltr" autocomplete="off" placeholder="Buscar insumo (ex.: lauril, EDTA, galão 5 L)…" value="${insEsc(insSt.q)}">
+    <div class="ic-chips"><button class="ic-chip ${insSt.ess?'on':''}" data-ins="ess">⭐ Só essenciais</button><button class="ic-chip ${insSt.g?'':'on'}" data-ins="g" data-g="">Todos</button>${INS_G.map(g=>`<button class="ic-chip ${insSt.g===g?'on':''}" data-ins="g" data-g="${g}">${g}</button>`).join('')}</div>
+    <div id="ic-count" style="font-size:11px;color:var(--dim);margin-top:8px"></div></div>
+  <div class="ic-note">Os botões abrem uma <b>busca</b> no Mercado Livre ou no Shopee — os preços e vendedores mudam. Antes de comprar matéria-prima, confira a ficha técnica (FDS), a pureza e o teor ativo.</div>
+  <div id="ic-box"></div>`;
+}
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='ic-q'){insSt.q=e.target.value;insSt.n=INS_PAGE;insDraw()}});
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('[data-ins]');if(!b)return;var a=b.getAttribute('data-ins');
+  if(a==='mais'){insSt.n+=INS_PAGE;insDraw()}
+  else if(a==='ess'){insSt.ess=!insSt.ess;b.classList.toggle('on',insSt.ess);insSt.n=INS_PAGE;insDraw()}
+  else if(a==='g'){insSt.g=b.getAttribute('data-g');insSt.n=INS_PAGE;document.querySelectorAll('.ic-chip[data-ins=g]').forEach(function(x){x.classList.toggle('on',x===b)});insDraw()}
+});
 
 // ── SUPPLIERS ─────────────────────────────────────────────────────
 function rSupp(){
