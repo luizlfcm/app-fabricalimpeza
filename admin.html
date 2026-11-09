@@ -185,6 +185,13 @@ var EXC_API='https://pagamento.luverisgroup.com.br/api/exclusiva', EXC_P=[], EXC
 function excEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function excDt(s){try{return new Date(s).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'})}catch(e){return s}}
 function excLink(c){c=String(c||'');if(/@/.test(c))return '<a style="color:#58a6ff" href="mailto:'+excEsc(c)+'">'+excEsc(c)+'</a>';var d=c.replace(/\D/g,'');if(d.length<=11)d='55'+d;return excEsc(c)+' · <a style="color:#58a6ff" href="https://wa.me/'+d+'" target="_blank" rel="noopener">WhatsApp</a>'}
+
+function excTxt(p,k){var i=p.itens[k],t='*Fórmula '+(k+1)+': '+i.nome+'*';if(i.descricao)t+='\nDescrição: '+i.descricao;if(i.custo)t+='\nCusto esperado por litro: '+i.custo;if(i.qualidade)t+='\nQualidade: '+({economica:'Econômica',intermediaria:'Intermediária',premium:'Premium'}[i.qualidade]||i.qualidade);return t}
+function excCopia(txt,btn){
+  var ok=function(){var o=btn.getAttribute('data-l')||btn.textContent;btn.setAttribute('data-l',o);btn.textContent='✓ Copiado!';setTimeout(function(){btn.textContent=o},1600)};
+  try{navigator.clipboard.writeText(txt).then(ok,function(){fb()})}catch(e){fb()}
+  function fb(){var t=document.createElement('textarea');t.value=txt;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();ok()}
+}
 function excDraw(){
   var n={todos:EXC_P.length};['novo','andamento','entregue'].forEach(function(s){n[s]=EXC_P.filter(function(p){return p.status===s}).length});
   var b=document.getElementById('exc-badge');b.style.display=n.novo?'inline-block':'none';b.textContent=n.novo+' novo'+(n.novo>1?'s':'');
@@ -195,7 +202,7 @@ function excDraw(){
     return '<div data-eid="'+p.id+'" style="background:#111418;border:1px solid '+cor+';border-radius:12px;padding:14px;margin:10px 0;'+(p.status==='entregue'?'opacity:.65':'')+'">'
     +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:#8b949e"><span>'+excDt(p.criadoEm)+' · '+excEsc(p.produtoNome||p.produto)+'</span><b>'+EXC_N[p.status]+'</b></div>'
     +'<div style="margin:8px 0;font-size:14px"><b>'+excEsc(p.nome||'')+'</b> · '+excEsc(p.email)+'<br>Resposta: '+excLink(p.contato)+'</div>'
-    +p.itens.map(function(i,k){return '<div style="background:#0b0e12;border-radius:8px;padding:10px;margin:8px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word"><b style="color:#f0b400">Fórmula '+(k+1)+': '+excEsc(i.nome)+'</b>'+(i.descricao?'\n'+excEsc(i.descricao):'')+(i.custo?'\n<i>Custo esperado/litro: '+excEsc(i.custo)+'</i>':'')+(i.qualidade?'\n<i>Qualidade: '+({economica:'Econômica',intermediaria:'Intermediária',premium:'Premium'}[i.qualidade]||i.qualidade)+'</i>':'')+'</div>'}).join('')
+    +p.itens.map(function(i,k){return '<div style="background:#0b0e12;border-radius:8px;padding:10px;margin:8px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word"><b style="color:#f0b400">Fórmula '+(k+1)+': '+excEsc(i.nome)+'</b>'+(i.descricao?'\n'+excEsc(i.descricao):'')+(i.custo?'\n<i>Custo esperado/litro: '+excEsc(i.custo)+'</i>':'')+(i.qualidade?'\n<i>Qualidade: '+({economica:'Econômica',intermediaria:'Intermediária',premium:'Premium'}[i.qualidade]||i.qualidade)+'</i>':'')+'</div>'+'<div style="text-align:right;margin:-2px 0 6px"><button type="button" data-ecp="'+k+'" style="flex:none;padding:7px 12px;font-size:12px;border-radius:8px;border:1px solid #30363d;background:#1c2330;color:#e6edf3;cursor:pointer">📋 Copiar esta fórmula</button></div>'}).join('')
     +'<textarea data-enota placeholder="Anotação interna (opcional)" style="width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid #2a2f38;background:#0b0e12;color:#fff;font-size:13px;font-family:inherit;min-height:44px">'+excEsc(p.nota||'')+'</textarea>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'
     +(p.status!=='andamento'?'<button type="button" data-es="andamento" class="b1" style="flex:none;padding:9px 12px;font-size:13px">▶ Em andamento</button>':'')
@@ -214,6 +221,8 @@ function excLoad(silencioso){
 document.getElementById('exc-load').onclick=function(){excLoad(false)};
 document.getElementById('exc-tabs').onclick=function(e){var f=e.target.getAttribute('data-ef');if(f){EXC_F=f;excDraw()}};
 document.getElementById('exc-list').onclick=function(e){
+  var cp=e.target.getAttribute('data-ecp');
+  if(cp!==null){var id0=e.target.closest('[data-eid]').getAttribute('data-eid'),p0=EXC_P.filter(function(x){return x.id===id0})[0];if(p0)excCopia(excTxt(p0,+cp),e.target);return}
   var s=e.target.getAttribute('data-es');if(!s)return;
   var card=e.target.closest('[data-eid]'),id=card.getAttribute('data-eid'),nota=card.querySelector('[data-enota]').value;
   e.target.disabled=true;
