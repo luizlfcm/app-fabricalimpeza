@@ -52,6 +52,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .pb{height:2px;background:var(--brd);}
 .pf{height:100%;background:linear-gradient(90deg,var(--acc),var(--acl));transition:width .3s;}
 /* HOME */
+.nn{margin:-4px 16px 14px;display:flex;align-items:center;gap:10px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.40);border-left:3px solid #ef4444;border-radius:12px;padding:10px 10px 10px 12px;color:#fca5a5;font-size:12.5px;line-height:1.4}
+.nn .nt{flex:1;min-width:0}.nn b{color:#fff;font-weight:800;letter-spacing:.2px}.nn a{color:#fff;text-decoration:none;font-weight:800;white-space:nowrap}
+.nn .nx{flex:none;background:none;border:0;color:#fca5a5;font-size:18px;line-height:1;padding:4px 6px;cursor:pointer;opacity:.8;min-height:0;width:auto}
 .wb{margin:16px;padding:18px;background:linear-gradient(135deg,var(--card),rgba(232,114,12,.06));border:1px solid var(--brd);border-left:3px solid var(--acc);border-radius:var(--rl);}
 .wg{font-size:10px;color:var(--acc);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
 .wt{font-size:18px;font-weight:800;margin-bottom:6px;}
@@ -606,6 +609,7 @@ function rHome(){
     <div class="wt">Fábrica da Limpeza</div>
     <div class="wx">Sou João Silva, Engenheiro Químico com mais de 10 anos de experiência em formulação. Este guia foi criado para você produzir com qualidade e vender com confiança.</div>
   </div>
+  ${(function(){try{if(localStorage.getItem('nn_ok_v1'))return''}catch(e){}return`<div class="nn"><span>🔔</span><div class="nt"><b>Novo número de suporte:</b> <a href="https://wa.me/5511955073898" target="_blank" rel="noopener">(11) 95507-3898</a> (João Silva)</div><button type="button" class="nx" data-nn="x" aria-label="Fechar aviso">×</button></div>`})()}
   <div class="sl">Seus Produtos</div>
   <div class="pg">${pcards}</div>
   <div class="sl">Ferramentas</div>
@@ -1497,10 +1501,9 @@ document.addEventListener('DOMContentLoaded',init);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);else iniciar();
 })();
+
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-nn]');if(!b)return;try{localStorage.setItem('nn_ok_v1','1')}catch(x){}var n=b.closest('.nn');if(n)n.remove()});
 </script>
 <!--JOAO:END-->
-<!--AVISO:START-->
-<script>window.AVISO_CFG={modal:true};!function(){var e="https://wa.me/5511955073898?text="+encodeURIComponent("Olá João! Salvei o seu novo número."),t="aviso_novo_num_v1";function n(){try{localStorage.setItem(t,"1")}catch(e){}try{sessionStorage.setItem(t,"1")}catch(e){}}function o(){if(!function(){try{return localStorage.getItem(t)||sessionStorage.getItem(t)}catch(e){return""}}()&&!document.getElementById("avz")){var o=document.createElement("style");o.textContent='#avz{position:fixed;inset:0;z-index:10300;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:avzf .25s ease}@keyframes avzf{from{opacity:0}to{opacity:1}}#avz .b{width:100%;max-width:420px;max-height:92vh;overflow:auto;background:linear-gradient(160deg,#0a1a3f,#050b1c);color:#fff;border:1px solid #1f3a78;border-radius:20px;padding:22px 20px 18px;box-shadow:0 0 60px rgba(250,190,30,.18)}#avz .t{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#ffd23f,#f0a500);color:#111;border-radius:12px;padding:8px 16px 8px 12px;font-weight:900;font-size:22px;letter-spacing:.5px}#avz h2{font-size:22px;line-height:1.2;margin:16px 0 10px;font-weight:900}#avz h2 b{color:#ffd23f}#avz p{font-size:15px;line-height:1.5;color:#dbe4f5;margin:0 0 12px}#avz .n{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#0f7a32,#0a5a24);border:2px solid #fff;border-radius:99px;padding:12px 14px;margin:4px 0 12px;font-size:25px;font-weight:900;letter-spacing:.3px}#avz a.wa{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-weight:800;font-size:16px;border-radius:12px;min-height:50px;margin-bottom:8px}#avz button{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;background:transparent;color:#cbd5e1;border:1px solid #334a7a;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}#avz small{display:block;font-size:12px;line-height:1.45;color:#94a3b8;margin:4px 0 4px;text-align:center}',document.head.appendChild(o);var a=document.createElement("div");a.id="avz",a.setAttribute("role","alertdialog"),a.setAttribute("aria-modal","true"),a.setAttribute("aria-label","Novo número de contato"),a.innerHTML='<div class="b"><div class="t">📢 ATENÇÃO!</div><h2>Novo número de <b>contato</b></h2><p>Tive um problema com meu chip, que foi hackeado, e não consegui recuperar o número antigo. <b>A partir de agora, este é o meu novo número:</b></p><div class="n">📱 (11) 95507-3898</div><a class="wa" href="'+e+'" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a><button type="button" id="avz-cp">📋 Copiar número</button><button type="button" id="avz-ok">Entendi</button><small>Salve na agenda. Por segurança, desconfie de mensagens do meu número antigo pedindo dinheiro, código ou senha.</small></div>',document.body.appendChild(a);var i=function(){n(),a.parentNode&&a.parentNode.removeChild(a)};document.getElementById("avz-ok").onclick=i,document.getElementById("avz-cp").onclick=function(){var e=this,t=function(){e.textContent="Copiado ✓"};try{navigator.clipboard.writeText("11955073898").then(t,t)}catch(e){t()}},a.querySelector("a.wa").addEventListener("click",n),a.addEventListener("click",function(e){e.target===a&&i()})}}function a(){o()}"loading"===document.readyState?document.addEventListener("DOMContentLoaded",a):a()}();</script>
-<!--AVISO:END-->
 </body>
 </html>
